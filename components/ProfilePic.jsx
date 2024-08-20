@@ -65,7 +65,7 @@ export default function ProfilePic() {
           className="bg-white w-[150px] h-[150px] rounded-full overflow-hidden"
           onClick={() => setEditPic((prev) => !prev)}
         >
-          {auth ? (
+          {auth != {} ? (
             image == "" ? (
               <div className="w-full h-full flex justify-center items-center text-[100px] font-bold">
                 <div className="text-black cursor-pointer">
