@@ -38,7 +38,7 @@ const Profile = () => {
   const logout = () => {
     const sure = confirm("Are are surely want to log out?");
     if (sure) {
-      setAuth(null);
+      setAuth({});
       router.push("/");
     }
   };
