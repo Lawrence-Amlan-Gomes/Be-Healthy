@@ -69,7 +69,7 @@ export default function ProfilePic() {
             image == "" ? (
               <div className="w-full h-full flex justify-center items-center text-[100px] font-bold">
                 <div className="text-black cursor-pointer">
-                  {auth.name.charAt(0) != undefined ? auth.name.charAt(0) : ""}
+                  {auth.name != undefined ? auth.name.charAt(0) : ""}
                 </div>
               </div>
             ) : (
