@@ -1,372 +1,322 @@
-'use client'
+"use client";
 
-import {useState} from 'react';
+import { useEffect, useState } from "react";
 
-import { DaysContext } from '../contexts';
+import { DaysContext } from "../contexts";
 
-export default function DaysProvider({children}) {
-    const [days, setDays] = useState([
-        {
-          day: "15 August",
-          hours: [
-            {
-              id: 1,
-              tasks: [],
-            },
-            {
-              id: 2,
-              tasks: [
-                { id: 1, name: "New Task", time: "11.30 AM" },
-                { id: 2, name: "New Task1", time: "11.30 AM" },
-              ],
-            },
-            {
-              id: 3,
-              tasks: [],
-            },
-            {
-              id: 4,
-              tasks: [],
-            },
-            {
-              id: 5,
-              tasks: [],
-            },
-            {
-              id: 6,
-              tasks: [],
-            },
-            {
-              id: 7,
-              tasks: [],
-            },
-            {
-              id: 8,
-              tasks: [],
-            },
-            {
-              id: 9,
-              tasks: [],
-            },
-            {
-              id: 10,
-              tasks: [],
-            },
-            {
-              id: 11,
-              tasks: [],
-            },
-            {
-              id: 12,
-              tasks: [],
-            },
-            {
-              id: 13,
-              tasks: [],
-            },
-            {
-              id: 14,
-              tasks: [],
-            },
-            {
-              id: 15,
-              tasks: [],
-            },
-            {
-              id: 16,
-              tasks: [],
-            },
-            {
-              id: 17,
-              tasks: [],
-            },
-            {
-              id: 18,
-              tasks: [],
-            },
-            {
-              id: 19,
-              tasks: [],
-            },
-            {
-              id: 20,
-              tasks: [],
-            },
-            {
-              id: 21,
-              tasks: [],
-            },
-            {
-              id: 22,
-              tasks: [],
-            },
-            {
-              id: 23,
-              tasks: [],
-            },
-            {
-              id: 24,
-              tasks: [],
-            },
-          ],
-        },
-        {
-          day: "16 August",
-          hours: [
-            {
-              id: 1,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 2,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 3,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 4,
-              tasks: [{ id: 1, name: "New Task", time: "11.30 AM" }],
-              num: 1,
-            },
-            {
-              id: 5,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 6,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 7,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 8,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 9,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 10,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 11,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 12,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 13,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 14,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 15,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 16,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 17,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 18,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 19,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 20,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 21,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 22,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 23,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 24,
-              tasks: [],
-              num: 1,
-            },
-          ],
-        },
-        {
-          day: "17 August",
-          hours: [
-            {
-              id: 1,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 2,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 3,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 4,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 5,
-              tasks: [{ id: 1, name: "New Task", time: "11.30 AM" }],
-              num: 1,
-            },
-            {
-              id: 6,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 7,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 8,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 9,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 10,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 11,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 12,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 13,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 14,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 15,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 16,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 17,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 18,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 19,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 20,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 21,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 22,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 23,
-              tasks: [],
-              num: 1,
-            },
-            {
-              id: 24,
-              tasks: [],
-              num: 1,
-            },
-          ],
-        },
-      ])
+export default function DaysProvider({ children }) {
+  let today = new Date();
+  let dateStr = today.toString();
+  let day = dateStr.slice(0, 3);
+  let month = dateStr.slice(4, 7);
+  let date = dateStr.slice(8, 10);
+  let intdate = parseInt(date.toString(), 10);
+  console.log(intdate);
+  let year = dateStr.slice(11, 15);
+  let loop = false;
+  let dayloop = false;
+  let months = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+  ];
+  let daysArr = ["Sat", "Sun", "Mon", "Tue", "Wed", "Thu", "Fri"];
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  let allDays = [];
 
-    const [activeTask, SetActiveTask] = useState({})
+  let d = 0;
+  if (day == "Sat") {
+    d = 0;
+  } else if (day == "Sun") {
+    d = 1;
+  } else if (day == "Mon") {
+    d = 2;
+  } else if (day == "Tue") {
+    d = 3;
+  } else if (day == "Wed") {
+    d = 4;
+  } else if (day == "Thu") {
+    d = 5;
+  } else if (day == "Fri") {
+    d = 6;
+  }
 
-    return(
-        <DaysContext.Provider value={{days, setDays, activeTask, SetActiveTask}}>
-            {children}
-        </DaysContext.Provider>
-    )
+  for (let i of months) {
+    if (i == "Jan") {
+      let x = 1;
+      if (month == i) {
+        loop = true;
+        x = intdate;
+      }
+      if (loop) {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${year}`,
+            tasks: [],
+          });
+          // d = (d+1)%6
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Feb") {
+      let x = 1;
+      if (month == i) {
+        loop = true;
+        x = intdate;
+      }
+      if (loop) {
+        while (x <= 28) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${year}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Mar") {
+      let x = 1;
+      if (month == i) {
+        loop = true;
+        x = intdate;
+      }
+      if (loop) {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${year}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Apr") {
+      let x = 1;
+      if (month == i) {
+        loop = true;
+        x = intdate;
+      }
+      if (loop) {
+        while (x <= 30) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]}  ${year}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "May") {
+      let x = 1;
+      if (month == i) {
+        loop = true;
+        x = intdate;
+      }
+      if (loop) {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${year}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Jun") {
+      let x = 1;
+      if (month == i) {
+        loop = true;
+        x = intdate;
+      }
+      if (loop) {
+        while (x <= 30) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]}  ${year}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Jul") {
+      let x = 1;
+      if (month == i) {
+        loop = true;
+        x = intdate;
+      }
+      if (loop) {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${year}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Aug") {
+      let x = 1;
+      if (month == i) {
+        loop = true;
+        x = intdate;
+      }
+      if (loop) {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]}  ${year}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Sep") {
+      let x = 1;
+      if (month == i) {
+        loop = true;
+        x = intdate;
+      }
+      if (loop) {
+        while (x <= 30) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${year}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Oct") {
+      let x = 1;
+      if (month == i) {
+        loop = true;
+        x = intdate;
+      }
+      if (loop) {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${year}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Nov") {
+      let x = 1;
+      if (month == i) {
+        loop = true;
+        x = intdate;
+      }
+      if (loop) {
+        while (x <= 30) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${year}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Dec") {
+      let x = 1;
+      if (month == i) {
+        loop = true;
+        x = intdate;
+      }
+      if (loop) {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${year}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+  }
+
+  console.log();
+  const [days, setDays] = useState([]);
+
+  useEffect(() => {
+    setDays(allDays);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  return (
+    <DaysContext.Provider value={{ days, setDays }}>
+      {children}
+    </DaysContext.Provider>
+  );
 }

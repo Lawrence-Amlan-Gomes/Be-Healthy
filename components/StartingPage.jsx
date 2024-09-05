@@ -1,8 +1,7 @@
-"use client";
-
 import { useTheme } from "@/app/hooks/useTheme";
 
 export default function StartingPage({ setIsGetStarted }) {
+  console.log(0)    
   const { theme } = useTheme();
   return (
     <div

@@ -5,8 +5,8 @@ import AuthProvider from "./providers/AuthProvider";
 
 import { dbConnect } from "@/services/mongo";
 import ThemeProvider from "./providers/ThemeProvider";
-import HoursProvider from "./providers/HoursProvider";
 import DaysProvider from "./providers/DaysProvider";
+import TaskProvider from "./providers/TaskProvider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,18 +20,18 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en">
       <body>
-        <DaysProvider>
-          <HoursProvider>
-            <ThemeProvider>
-              <AuthProvider>
-                <div className="h-screen overflow-hidden">
-                  <Navbar />
-                  <main className="h-[90%]">{children}</main>
-                </div>
-              </AuthProvider>
-            </ThemeProvider>
-          </HoursProvider>
-        </DaysProvider>
+        <TaskProvider>
+          <DaysProvider>
+              <ThemeProvider>
+                <AuthProvider>
+                  <div className="h-screen overflow-hidden">
+                    <Navbar />
+                    <main className="h-[90%]">{children}</main>
+                  </div>
+                </AuthProvider>
+              </ThemeProvider>
+          </DaysProvider>
+        </TaskProvider>
       </body>
     </html>
   );

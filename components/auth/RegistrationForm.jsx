@@ -39,7 +39,7 @@ const RegistrationForm = () => {
     const setAllEmailsInArray = async () => {
       const Emails = [];
       const users = await getAllUsers2({ email: email });
-      for (const user of users) {
+      for (let user of users) {
         Emails.push(user.email);
       }
       setAllEmails(Emails);

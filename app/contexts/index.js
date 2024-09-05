@@ -8,3 +8,6 @@ export const ThemeContext = createContext();
 export const HoursContext = createContext();
 
 export const DaysContext = createContext();
+
+export const TaskContext = createContext();
+

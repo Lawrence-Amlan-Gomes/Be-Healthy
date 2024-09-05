@@ -1,15 +1,22 @@
 "use client";
 
+import { useTask } from "@/app/hooks/useTask";
 import { useTheme } from "@/app/hooks/useTheme";
+import { useState } from "react";
 
-
-export default function Task({name, time}) {
+export default function Task({ name, time, day, id, color }) {
   const { theme } = useTheme();
+  const { setTask, setClicked } = useTask();
   return (
     <div
-      className={`w-full h-[50px] float-left bg-green-600 text-start p-1 font-normal text-[14px] break-words overflow-hidden border-[1px] border-b-[#7c7c7c]`}
+      onClick={() =>{
+        setTask({ name: name, time: time, day: day, id:id })
+        setClicked(true)
+      } }
+      className={`cursor-pointer w-[98%] h-[30px] text-white float-left ${color} rounded-lg m-[1%] text-start p-1 font-normal text-[14px] overflow-hidden scrollbar-none`}
     >
-      {name}
+      <div className="w-[60%] h-full float-left px-1">{name}</div>
+      <div className="w-[40%] h-full overflow-hidden text-[12px] mt-[2px]">{time}</div>
     </div>
   );
 }
