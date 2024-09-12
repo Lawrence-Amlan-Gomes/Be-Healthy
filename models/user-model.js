@@ -24,7 +24,12 @@ const schema = new Schema({
   bio: {
     required: false,
     type: String
-  }
+  },
+  days: {
+    required: false,
+    type: Array
+  },
+  
 });
 
 

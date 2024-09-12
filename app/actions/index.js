@@ -7,7 +7,8 @@ import {
   getAllUsers,
   updateUser,
   changePassword,
-  changePhoto
+  changePhoto,
+  upDateDays
 } from "@/db/queries";
 import { redirect } from "next/navigation";
 
@@ -53,6 +54,15 @@ async function callChangePassword(email, password) {
   }
 }
 
+async function callUpdateDays(email, days) {
+  try {
+    await upDateDays(email, days);
+    redirect("/");
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function callChangePhoto(email, photo) {
   try {
     await changePhoto(email, photo);
@@ -62,4 +72,4 @@ async function callChangePhoto(email, photo) {
   }
 }
 
-export { registerUser, performLogin, getAllUsers2, callUpdateUser, callChangePassword, callChangePhoto };
+export { registerUser, performLogin, getAllUsers2, callUpdateUser, callChangePassword, callChangePhoto, callUpdateDays };

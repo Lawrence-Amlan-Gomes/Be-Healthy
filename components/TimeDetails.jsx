@@ -3,14 +3,38 @@ import { useDays } from "@/app/hooks/useDays";
 import { useTask } from "@/app/hooks/useTask";
 import { useTheme } from "@/app/hooks/useTheme";
 import { useEffect, useState } from "react";
+import { callUpdateDays } from "@/app/actions";
+import { useAuth } from "@/app/hooks/useAuth";
 
 export default function TimeDetails() {
   const { theme } = useTheme();
+  const { auth, setAuth } = useAuth();
   const [taskCliced, setTaskClicked] = useState(true);
   const [noError, setNoError] = useState(true);
   const { task, setTask, clicked, setClicked } = useTask();
   const { days, setDays } = useDays();
   console.log(task);
+
+  useEffect(() => {
+    if (auth) {
+      if (auth.days.length != 0) {
+        let tempArr = [];
+        let diff = auth.days.length - days.length;
+        while (diff < auth.days.length) {
+          tempArr.push(auth.days[diff]);
+          diff += 1;
+        }
+        setDays(tempArr);
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateDayAuth = async (thisDays) => {
+    if (auth) {
+      await callUpdateDays(auth.email, thisDays);
+    }
+  };
 
   const deleteTask = () => {
     const sure = confirm("Are you sure want to delete this task?");
@@ -38,12 +62,13 @@ export default function TimeDetails() {
       }
       setDays(newDays);
       setClicked(false);
+      updateDayAuth(newDays);
     }
   };
 
   const setEveryday = () => {
     const sure = confirm("Are you sure want to set this task for everyday?");
-    
+
     if (sure) {
       if (noError) {
         let newDays = [];
@@ -68,6 +93,7 @@ export default function TimeDetails() {
           newDays.push(newDay);
         }
         setDays(newDays);
+        updateDayAuth(newDays);
       }
     }
   };
@@ -108,6 +134,7 @@ export default function TimeDetails() {
           }
         }
         setDays(newDays);
+        updateDayAuth(newDays);
       }
     }
   };
@@ -143,6 +170,7 @@ export default function TimeDetails() {
         }
       }
       setDays(newDays);
+      updateDayAuth(newDays);
     }
   };
 
@@ -162,6 +190,7 @@ export default function TimeDetails() {
           newDays.push(newDay);
         }
         setDays(newDays);
+        updateDayAuth(newDays);
       }
     }
   };

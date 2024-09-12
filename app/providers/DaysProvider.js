@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-
 import { DaysContext } from "../contexts";
 
 export default function DaysProvider({ children }) {

@@ -112,6 +112,7 @@ const RegistrationForm = () => {
           phone: "Phone",
           photo: "",
           bio: "Bio",
+          days: [],
         });
       }
     }

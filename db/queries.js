@@ -39,6 +39,13 @@ async function changePassword(email, password) {
     )
 }
 
+async function upDateDays(email, days) {
+  await userModel.updateOne(
+      { email: email },
+      { $set: { days:days } }
+    )
+}
+
 async function changePhoto(email, photo) {
   await userModel.updateOne(
       { email: email },
@@ -53,5 +60,6 @@ export {
   getAllUsers,
   updateUser,
   changePassword,
-  changePhoto
+  changePhoto,
+  upDateDays
 };

@@ -3,14 +3,13 @@ import { callUpdateUser } from "@/app/actions";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useTheme } from "@/app/hooks/useTheme";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import ProfilePic from "./ProfilePic";
 
 const Profile = () => {
   const { theme } = useTheme();
   const { auth, setAuth } = useAuth();
-  const router = useRouter();
 
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
@@ -39,7 +38,7 @@ const Profile = () => {
     const sure = confirm("Are are surely want to log out?");
     if (sure) {
       setAuth({});
-      router.push("/");
+      window.location.href = "/";
     }
   };
 

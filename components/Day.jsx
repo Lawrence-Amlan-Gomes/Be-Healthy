@@ -71,7 +71,7 @@ export default function Day({ day, days, setDays, dayTasks, setMountYear }) {
   return (
     <div
       onMouseOver={mouseOver}
-      className={`lg:w-[14.28%] sm:w-[25%] w-[50%] h-[50%] overflow-y-auto overflow-x-hidden float-left border-t-[1px] border-l-[1px] border-[#666666] ${
+      className={`lg:w-[14.28%] sm:w-[25%] w-[50%] h-[50%] overflow-y-auto overflow-x-hidden float-left border-[1px] border-[#666666] ${
         theme ? "bg-[#ffffff] text-[#0a0a0a]" : "bg-[#000000] text-[#ebebeb]"
       }`}
     >

@@ -13,7 +13,7 @@ const EachField = ({
     <>
       {isReal ? (
         <div>
-          <div className="text-[18px] text-zinc-200 font-bold tracking-wider mb-1 text-start mt-5">{value != "" ? label : ""}</div>
+          <div className="text-[18px] font-bold tracking-wider mb-1 text-start mt-5">{value != "" ? label : ""}</div>
           <input
             className={`p-3 border-[2px] box-border w-full rounded-md focus:outline-none focus:outline-[1px] focus:shadow-none bg-transparent placeholder:text-zinc-400 ${
               !iserror
