@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { dbConnect } from "@/services/mongo";
 import {
   createUser,
   findUserByCredentials,
@@ -13,12 +14,14 @@ import {
 import { redirect } from "next/navigation";
 
 async function registerUser(formData) {
+    await dbConnect()
     const created = await createUser(formData);
     redirect("/login");
 }
 
 async function getAllUsers2() {
   try {
+    await dbConnect()
     const users = await getAllUsers();
     return users;
   } catch (error) {
