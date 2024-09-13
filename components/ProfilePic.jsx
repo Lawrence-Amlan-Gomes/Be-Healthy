@@ -26,7 +26,7 @@ export default function ProfilePic() {
     const file = e.target.files[0];
     reader.readAsDataURL(file);
 
-    if (file) {
+    if (file && auth) {
       reader.onload = () => {
         setImage(reader.result);
         setAuth({ ...auth, photo: image });
@@ -38,7 +38,7 @@ export default function ProfilePic() {
     const callPhoto = async () => {
       await callChangePhoto(auth.email, image);
     };
-    if (image != "") {
+    if (image != "" && auth) {
       callPhoto();
       setAuth({ ...auth, photo: image });
     }
@@ -46,16 +46,18 @@ export default function ProfilePic() {
   }, [image]);
 
   useEffect(() => {
-    if (auth.photo != null && auth.photo != "") {
+    if (auth.photo != null && auth.photo != "" && auth) {
       setImage(auth.photo);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth.photo]);
 
   const handleImageDelete = async () => {
-    setImage("");
-    setAuth({ ...auth, photo: "" });
-    await callChangePhoto(auth.email, "");
+    if(auth){
+      setImage("");
+      setAuth({ ...auth, photo: "" });
+      await callChangePhoto(auth.email, "");
+    }
   };
 
   return (
