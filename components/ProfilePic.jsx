@@ -46,7 +46,7 @@ export default function ProfilePic() {
   }, [image]);
 
   useEffect(() => {
-    if (auth.photo != "") {
+    if (auth.photo != null && auth.photo != "") {
       setImage(auth.photo);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
