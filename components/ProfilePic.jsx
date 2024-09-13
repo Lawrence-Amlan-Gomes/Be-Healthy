@@ -46,14 +46,16 @@ export default function ProfilePic() {
   }, [image]);
 
   useEffect(() => {
-    if (auth.photo != null && auth.photo != "" && auth) {
-      setImage(auth.photo);
+    if (auth) {
+      if (auth.photo != null && auth.photo != "") {
+        setImage(auth.photo);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [auth.photo]);
+  }, [auth]);
 
   const handleImageDelete = async () => {
-    if(auth){
+    if (auth) {
       setImage("");
       setAuth({ ...auth, photo: "" });
       await callChangePhoto(auth.email, "");
