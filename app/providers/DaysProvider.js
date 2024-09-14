@@ -10,8 +10,8 @@ export default function DaysProvider({ children }) {
   let month = dateStr.slice(4, 7);
   let date = dateStr.slice(8, 10);
   let intdate = parseInt(date.toString(), 10);
-  console.log(intdate);
   let year = dateStr.slice(11, 15);
+  let nextYear = (parseInt(year) + 1).toString();
   let loop = false;
   let dayloop = false;
   let months = [
@@ -292,6 +292,214 @@ export default function DaysProvider({ children }) {
         while (x <= 31) {
           allDays.push({
             day: `${x} ${i} ${daysArr[d]} ${year}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+  }
+
+  for (let i of months) {
+    if (i == "Jan") {
+      let x = 1;
+      {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${nextYear}`,
+            tasks: [],
+          });
+          // d = (d+1)%6
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Feb") {
+      let x = 1;
+      {
+        while (x <= 28) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${nextYear}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Mar") {
+      let x = 1;
+      {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${nextYear}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Apr") {
+      let x = 1;
+      {
+        while (x <= 30) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]}  ${nextYear}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "May") {
+      let x = 1;
+      {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${nextYear}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Jun") {
+      let x = 1;
+      {
+        while (x <= 30) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]}  ${nextYear}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Jul") {
+      let x = 1;
+      {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${nextYear}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Aug") {
+      let x = 1;
+      {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${nextYear}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Sep") {
+      let x = 1;
+      {
+        while (x <= 30) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${nextYear}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Oct") {
+      let x = 1;
+      {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${nextYear}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Nov") {
+      let x = 1;
+      {
+        while (x <= 30) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${nextYear}`,
+            tasks: [],
+          });
+          if (d == 6) {
+            d = 0;
+          } else {
+            d += 1;
+          }
+          x += 1;
+        }
+      }
+    }
+    if (i == "Dec") {
+      let x = 1;
+      {
+        while (x <= 31) {
+          allDays.push({
+            day: `${x} ${i} ${daysArr[d]} ${nextYear}`,
             tasks: [],
           });
           if (d == 6) {
