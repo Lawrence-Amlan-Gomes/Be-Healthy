@@ -7,6 +7,7 @@ import { useTheme } from "@/app/hooks/useTheme";
 
 const RegistrationForm = () => {
   const { theme } = useTheme();
+  const [isLoading, setIsLoading] = useState(false);
   const [name, setName] = useState("");
   const [noError, setNoError] = useState(false);
   const [nameError, setNameError] = useState({
@@ -105,7 +106,8 @@ const RegistrationForm = () => {
     if (noError) {
       const sureSubmit = confirm("Are you sure to Register?");
       if (sureSubmit) {
-        await registerUser({
+        setIsLoading(true);
+        let registered = await registerUser({
           name: name,
           email: email,
           password: password,
@@ -114,6 +116,9 @@ const RegistrationForm = () => {
           bio: "Bio",
           days: [],
         });
+        if (registered) {
+          setIsLoading(false);
+        }
       }
     }
   };
@@ -198,7 +203,7 @@ const RegistrationForm = () => {
               : "bg-[#1a1a1a] text-[#696969]"
           }`}
         >
-          Register
+          {isLoading ? `Registering...` : `Register`}
         </button>
         <p className="mt-10">
           Already Have An Account?{" "}

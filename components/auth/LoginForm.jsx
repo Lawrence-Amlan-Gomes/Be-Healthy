@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "@/app/hooks/useTheme";
 
 const LoginForm = () => {
+  const [isLoading, setIsLoading] = useState(false);
   const { theme } = useTheme();
   const { setAuth } = useAuth();
   const router = useRouter();
@@ -44,6 +45,7 @@ const LoginForm = () => {
   }, [email, password]);
 
   const submitForm = async () => {
+    setIsLoading(true);
     try {
       const found = await performLogin({
         email: email,
@@ -52,6 +54,7 @@ const LoginForm = () => {
       if (found) {
         setAuth(found);
         router.push("/");
+        setIsLoading(false);
       } else {
         setEmailError({
           iserror: true,
@@ -143,7 +146,7 @@ const LoginForm = () => {
           onClick={submitForm}
           className={`text-[18px] text-white cursor-pointer rounded-full mt-10 py-2 px-6  ${"bg-green-800 hover:bg-green-700"}`}
         >
-          Login
+          {isLoading ? `Loging...` : `Login`}
         </button>
         <p className="mt-10">
           No Account?{" "}
