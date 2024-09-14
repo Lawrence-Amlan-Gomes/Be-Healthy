@@ -30,11 +30,11 @@ async function getAllUsers2() {
 }
 
 async function performLogin(formData) {
+  await dbConnect()
   try {
     const found = await findUserByCredentials(formData);
     return found;
   } catch (error) {
-    console.log(error)
     throw error;
   }
 }
