@@ -34,6 +34,7 @@ async function performLogin(formData) {
     const found = await findUserByCredentials(formData);
     return found;
   } catch (error) {
+    console.log(error)
     throw error;
   }
 }

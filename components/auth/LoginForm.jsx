@@ -69,6 +69,10 @@ const LoginForm = () => {
       }
     } catch (error) {
       console.log("Something went wrong");
+      setMainError({
+        isError: true,
+        error: "SomeThing Went Wrong",
+      });
     }
   };
   return (
