@@ -15,7 +15,7 @@ export default function Task({ name, time, day, id, color }) {
       } }
       className={`cursor-pointer w-[98%] h-[30px] text-white float-left ${color} rounded-lg m-[1%] text-start p-1 font-normal text-[14px] overflow-hidden scrollbar-none`}
     >
-      <div className="w-[60%] h-full float-left px-1">{name}</div>
+      <div className="w-[55%] h-full float-left px-1 mr-[5%] overflow-hidden">{name}</div>
       <div className="w-[40%] h-full overflow-hidden text-[12px] mt-[2px]">{time}</div>
     </div>
   );
