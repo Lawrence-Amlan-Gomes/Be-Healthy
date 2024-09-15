@@ -4,11 +4,9 @@ import { useTheme } from "@/app/hooks/useTheme";
 import { useEffect, useState } from "react";
 import Day from "./Day";
 import { useDays } from "@/app/hooks/useDays";
-import { useTask } from "@/app/hooks/useTask";
 
 export default function TimeTrack() {
   const { days, setDays } = useDays();
-  const { clicked, setClicked } = useTask();
   const [mountYear, setMountYear] = useState("");
   const arrDay = [0, 1, 2, 3, 4, 5, 6];
   const dayArr = [];
@@ -23,7 +21,6 @@ export default function TimeTrack() {
       }`}
     >
       <div
-        onMouseOver={() => setClicked(false)}
         className={`h-[10%] w-full flex justify-center items-center lg:text-[20px] font-bold`}
       >
         {mountYear}

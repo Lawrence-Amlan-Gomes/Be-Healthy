@@ -29,6 +29,12 @@ const LoginForm = () => {
   });
 
   useEffect(() => {
+    if (isTyping) {
+      setIsLoading(false);
+    }
+  }, [isTyping]);
+
+  useEffect(() => {
     setEmailError({
       iserror: false,
       error: "",

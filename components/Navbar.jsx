@@ -3,10 +3,13 @@ import Image from "next/image";
 import Link from "next/link";
 import ProfileIcon from "./ProfileIcon";
 import { useTheme } from "@/app/hooks/useTheme.js";
+import { useTask } from "@/app/hooks/useTask";
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
+  const { clicked, setClicked } = useTask();
   return (
     <div
+    onMouseOver={()=>setClicked(false)}
       className={`h-[10%] ${theme ? "bg-[#d1d1d1]" : "bg-[#070707]"}`}
     >
       <div className="w-[20%] h-full float-left flex justify-center items-center">
