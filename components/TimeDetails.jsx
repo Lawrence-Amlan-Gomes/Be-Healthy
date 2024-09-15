@@ -4,6 +4,7 @@ import { useTask } from "@/app/hooks/useTask";
 import { useTheme } from "@/app/hooks/useTheme";
 import { useEffect, useState } from "react";
 import { callUpdateDays } from "@/app/actions";
+import { dbConnect } from "@/services/mongo";
 import { useAuth } from "@/app/hooks/useAuth";
 
 export default function TimeDetails() {
@@ -114,6 +115,7 @@ export default function TimeDetails() {
     });
   }
   const updateDayAuth = async (thisDays) => {
+    dbConnect()
     if (auth) {
       await callUpdateDays(auth.email, thisDays);
     }
