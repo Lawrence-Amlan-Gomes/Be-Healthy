@@ -13,7 +13,66 @@ export default function TimeDetails() {
   const [noError, setNoError] = useState(true);
   const { task, setTask, clicked, setClicked } = useTask();
   const { days, setDays } = useDays();
-  console.log(task);
+
+  useEffect(() => {
+    let trimTime = task.time.trim();
+    let hour = parseInt(trimTime.slice(0, 2));
+    let minute = parseInt(trimTime.slice(3, 5));
+    let colon = trimTime.slice(2, 3);
+    let timeFormat = trimTime.slice(6, 8);
+    if (trimTime.slice(1, 2) == ":") {
+      hour = parseInt(trimTime.slice(0, 1));
+      minute = parseInt(trimTime.slice(2, 4));
+      colon = trimTime.slice(1, 2);
+      timeFormat = trimTime.slice(5, 7);
+    }
+
+    if (timeFormat == "H") {
+      if (hour < 24 && hour > -1) {
+        if (minute < 60 && minute > -1) {
+          if (colon == ":") {
+            setNoError(true);
+          } else {
+            setNoError(false);
+          }
+        } else {
+          setNoError(false);
+        }
+      } else {
+        setNoError(false);
+      }
+    } else if (timeFormat == "AM") {
+      if (hour < 13 && hour > -1) {
+        if (minute < 60 && minute > -1) {
+          if (colon == ":") {
+            setNoError(true);
+          } else {
+            setNoError(false);
+          }
+        } else {
+          setNoError(false);
+        }
+      } else {
+        setNoError(false);
+      }
+    } else if (timeFormat == "PM") {
+      if (hour < 13 && hour > -1) {
+        if (minute < 60 && minute > -1) {
+          if (colon == ":") {
+            setNoError(true);
+          } else {
+            setNoError(false);
+          }
+        } else {
+          setNoError(false);
+        }
+      } else {
+        setNoError(false);
+      }
+    } else {
+      setNoError(false);
+    }
+  }, [task.time]);
 
   useEffect(() => {
     if (auth) {
@@ -30,6 +89,30 @@ export default function TimeDetails() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  function convertTo24Hour(time) {
+    time = time.trim(); // remove extra spaces
+    let [hours, minutes] = time.split(/:| /);
+    const period = time.slice(-2).toUpperCase(); // AM, PM or H (24-hour format)
+
+    if (period === "AM" && hours === "12") {
+      hours = "00";
+    } else if (period === "PM" && hours !== "12") {
+      hours = String(Number(hours) + 12);
+    } else if (period === "H") {
+      // For 24-hour format, no change needed
+      return `${hours.padStart(2, "0")}:${minutes}`;
+    }
+
+    return `${hours.padStart(2, "0")}:${minutes}`;
+  }
+  // Function to sort tasks array based on time
+  function sortTasksByTime(tasks) {
+    return tasks.sort((a, b) => {
+      const timeA = convertTo24Hour(a.time);
+      const timeB = convertTo24Hour(b.time);
+      return timeA.localeCompare(timeB);
+    });
+  }
   const updateDayAuth = async (thisDays) => {
     if (auth) {
       await callUpdateDays(auth.email, thisDays);
@@ -89,6 +172,7 @@ export default function TimeDetails() {
               color: "bg-blue-700",
             });
           }
+          newTasks = sortTasksByTime(newTasks)
           let newDay = { day: i.day, tasks: newTasks };
           newDays.push(newDay);
         }
@@ -123,12 +207,14 @@ export default function TimeDetails() {
                 color: "bg-purple-700",
               });
             }
+            newTasks = sortTasksByTime(newTasks)
             let newDay = { day: i.day, tasks: newTasks };
             newDays.push(newDay);
           } else {
             for (let k of i.tasks) {
               newTasks.push(k);
             }
+            newTasks = sortTasksByTime(newTasks)
             let newDay = { day: i.day, tasks: newTasks };
             newDays.push(newDay);
           }
@@ -158,6 +244,7 @@ export default function TimeDetails() {
           }
         }
       }
+      newTasks = sortTasksByTime(newTasks)
       let newDays = [];
       for (let i of days) {
         if (i.day != task.day) {
@@ -171,6 +258,7 @@ export default function TimeDetails() {
       }
       setDays(newDays);
       updateDayAuth(newDays);
+      // autoSort()
     }
   };
 
@@ -186,6 +274,7 @@ export default function TimeDetails() {
               newTasks.push(k);
             }
           }
+          newTasks = sortTasksByTime(newTasks)
           let newDay = { day: i.day, tasks: newTasks };
           newDays.push(newDay);
         }
@@ -224,9 +313,18 @@ export default function TimeDetails() {
               name="text"
               type="text"
               onChange={(e) => setTask({ ...task, time: e.target.value })}
-              placeholder="Add your time"
+              placeholder="HH:MM AM/PM/H"
               autoComplete="off"
             />
+            {noError ? (
+              <></>
+            ) : (
+              <div
+                className={`text-red-600 w-full mt-2 text-center break-words`}
+              >
+                Time Format is HH:MM AM/PM/H
+              </div>
+            )}
             <button
               onClick={updateTask}
               className={`text-[18px] w-full cursor-pointer rounded-lg mt-3 py-2 px-6 shadow-md ${

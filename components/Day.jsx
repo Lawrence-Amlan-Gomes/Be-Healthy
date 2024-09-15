@@ -49,7 +49,7 @@ export default function Day({ day, days, setDays, dayTasks, setMountYear }) {
       let newTask = {
         id: `${day} ${preId}`,
         name: "New Task",
-        time: `${hours}:${minutes}`,
+        time: `${hours}:${minutes} H`,
         color: "bg-green-700"
       };
       let newTasks = [];

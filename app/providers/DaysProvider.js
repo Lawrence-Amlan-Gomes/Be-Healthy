@@ -512,8 +512,6 @@ export default function DaysProvider({ children }) {
       }
     }
   }
-
-  console.log();
   const [days, setDays] = useState([]);
 
   useEffect(() => {
