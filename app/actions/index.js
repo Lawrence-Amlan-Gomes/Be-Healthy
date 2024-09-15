@@ -40,6 +40,7 @@ async function performLogin(formData) {
 }
 
 async function callUpdateUser(email, name, phone, bio) {
+  await dbConnect()
   try {
     await updateUser(email, name, phone, bio);
     revalidatePath("/");
@@ -50,6 +51,7 @@ async function callUpdateUser(email, name, phone, bio) {
 }
 
 async function callChangePassword(email, password) {
+  await dbConnect()
   try {
     await changePassword(email, password);
     redirect("/");
@@ -59,6 +61,7 @@ async function callChangePassword(email, password) {
 }
 
 async function callUpdateDays(email, days) {
+  await dbConnect()
   try {
     await upDateDays(email, days);
     redirect("/");
@@ -68,6 +71,7 @@ async function callUpdateDays(email, days) {
 }
 
 async function callChangePhoto(email, photo) {
+  await dbConnect()
   try {
     await changePhoto(email, photo);
     redirect("/profile");

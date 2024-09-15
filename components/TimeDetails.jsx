@@ -115,8 +115,8 @@ export default function TimeDetails() {
     });
   }
   const updateDayAuth = async (thisDays) => {
-    dbConnect()
     if (auth) {
+      await dbConnect();
       await callUpdateDays(auth.email, thisDays);
     }
   };
@@ -174,7 +174,7 @@ export default function TimeDetails() {
               color: "bg-blue-700",
             });
           }
-          newTasks = sortTasksByTime(newTasks)
+          newTasks = sortTasksByTime(newTasks);
           let newDay = { day: i.day, tasks: newTasks };
           newDays.push(newDay);
         }
@@ -209,14 +209,14 @@ export default function TimeDetails() {
                 color: "bg-purple-700",
               });
             }
-            newTasks = sortTasksByTime(newTasks)
+            newTasks = sortTasksByTime(newTasks);
             let newDay = { day: i.day, tasks: newTasks };
             newDays.push(newDay);
           } else {
             for (let k of i.tasks) {
               newTasks.push(k);
             }
-            newTasks = sortTasksByTime(newTasks)
+            newTasks = sortTasksByTime(newTasks);
             let newDay = { day: i.day, tasks: newTasks };
             newDays.push(newDay);
           }
@@ -246,7 +246,7 @@ export default function TimeDetails() {
           }
         }
       }
-      newTasks = sortTasksByTime(newTasks)
+      newTasks = sortTasksByTime(newTasks);
       let newDays = [];
       for (let i of days) {
         if (i.day != task.day) {
@@ -276,7 +276,7 @@ export default function TimeDetails() {
               newTasks.push(k);
             }
           }
-          newTasks = sortTasksByTime(newTasks)
+          newTasks = sortTasksByTime(newTasks);
           let newDay = { day: i.day, tasks: newTasks };
           newDays.push(newDay);
         }
