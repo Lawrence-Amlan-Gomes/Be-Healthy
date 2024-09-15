@@ -1,9 +1,7 @@
 "use client";
 import { useTheme } from "@/app/hooks/useTheme";
 import Task from "./Task";
-import { useTask } from "@/app/hooks/useTask";
 export default function Day({ day, days, setDays, dayTasks, setMountYear }) {
-  const { clicked, setClicked } = useTask();
   const { theme } = useTheme();
   const currentTime = new Date();
   const hours = currentTime.getHours().toString().padStart(2, "0");
@@ -72,11 +70,6 @@ export default function Day({ day, days, setDays, dayTasks, setMountYear }) {
   };
   return (
     <div
-      onClick={() => {
-        if (clicked) {
-          setClicked(false);
-        }
-      }}
       onMouseOver={mouseOver}
       className={`lg:w-[14.28%] sm:w-[25%] w-[50%] h-[50%] overflow-y-auto overflow-x-hidden float-left border-[1px] border-[#666666] ${
         theme ? "bg-[#ffffff] text-[#0a0a0a]" : "bg-[#000000] text-[#ebebeb]"

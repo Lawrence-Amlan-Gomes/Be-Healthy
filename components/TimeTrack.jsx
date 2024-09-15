@@ -4,10 +4,12 @@ import { useTheme } from "@/app/hooks/useTheme";
 import { useEffect, useState } from "react";
 import Day from "./Day";
 import { useDays } from "@/app/hooks/useDays";
+import { useTask } from "@/app/hooks/useTask";
 
 export default function TimeTrack() {
   const { days, setDays } = useDays();
-  const [mountYear, setMountYear] = useState("")
+  const { clicked, setClicked } = useTask();
+  const [mountYear, setMountYear] = useState("");
   const arrDay = [0, 1, 2, 3, 4, 5, 6];
   const dayArr = [];
   for (let i of arrDay) {
@@ -20,7 +22,12 @@ export default function TimeTrack() {
         theme ? "bg-[#ffffff] text-[#0a0a0a]" : "bg-[#000000] text-[#ebebeb]"
       }`}
     >
-      <div className={`h-[10%] w-full flex justify-center items-center lg:text-[20px] font-bold`}>{mountYear}</div>
+      <div
+        onMouseOver={() => setClicked(false)}
+        className={`h-[10%] w-full flex justify-center items-center lg:text-[20px] font-bold`}
+      >
+        {mountYear}
+      </div>
       <div className={`h-[10%] w-full`}>
         {arrDay.map((idx) => (
           <div
@@ -43,7 +50,7 @@ export default function TimeTrack() {
         <div className="h-full float-left">
           {days.map((day) => (
             <Day
-              setMountYear = {setMountYear}
+              setMountYear={setMountYear}
               key={day.day}
               dayTasks={day.tasks}
               day={day.day}
