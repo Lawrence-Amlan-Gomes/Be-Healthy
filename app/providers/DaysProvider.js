@@ -363,7 +363,7 @@ export default function DaysProvider({ children }) {
       {
         while (x <= 30) {
           allDays.push({
-            day: `${x} ${i} ${daysArr[d]}  ${nextYear}`,
+            day: `${x} ${i} ${daysArr[d]} ${nextYear}`,
             tasks: [],
           });
           if (d == 6) {
@@ -397,7 +397,7 @@ export default function DaysProvider({ children }) {
       {
         while (x <= 30) {
           allDays.push({
-            day: `${x} ${i} ${daysArr[d]}  ${nextYear}`,
+            day: `${x} ${i} ${daysArr[d]} ${nextYear}`,
             tasks: [],
           });
           if (d == 6) {

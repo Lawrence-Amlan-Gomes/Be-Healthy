@@ -10,8 +10,8 @@ export default function Task({ name, time, day, id, color }) {
   const [isborder, setisborder] = useState(true)
   const { task, setTask, setClicked } = useTask();
   useEffect(()=>{
-    if(task.name == name && task.day == day){
-      if(task.time == time && task.id == id){
+    if(task.day == day){
+      if(task.id == id){
         setisborder(true)
       }else{
         setisborder(false)
