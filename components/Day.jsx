@@ -87,7 +87,7 @@ export default function Day({ day, days, setDays, dayTasks, setMountYear }) {
         theme ? "bg-[#ffffff] text-[#0a0a0a]" : "bg-[#000000] text-[#ebebeb]"
       }`}
     >
-      <div className={`h-[50px] w-full flex justify-center items-center text-center text-[16px] ${ isToday ? "text-red-500 font-bold" : ""}`}>
+      <div className={`h-[50px] w-full flex justify-center items-center text-center text-[16px] ${ isToday ? "text-red-600 font-bold" : ""}`}>
         {dayArr[0] == 1 ? `${dayArr[0]} ${dayArr[1]}` : dayArr[0]}
       </div>
       <div className="">
