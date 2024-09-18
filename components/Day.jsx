@@ -3,6 +3,18 @@ import { useTheme } from "@/app/hooks/useTheme";
 import Task from "./Task";
 export default function Day({ day, days, setDays, dayTasks, setMountYear }) {
   const { theme } = useTheme();
+  let today = new Date();
+  let dateStr = today.toString();
+  let isToday = false;
+  let todayArray = dateStr.split(" ")
+  let thisDayArray = day.split(" ")
+  console.log(todayArray)
+  console.log(thisDayArray)
+  if(todayArray[1] == thisDayArray[1] && todayArray[2] == thisDayArray[0]){
+    if(todayArray[3] == thisDayArray[3]){
+      isToday = true
+    }
+  }
   const currentTime = new Date();
   const hours = currentTime.getHours().toString().padStart(2, "0");
   const minutes = currentTime.getMinutes().toString().padStart(2, "0");
@@ -75,7 +87,7 @@ export default function Day({ day, days, setDays, dayTasks, setMountYear }) {
         theme ? "bg-[#ffffff] text-[#0a0a0a]" : "bg-[#000000] text-[#ebebeb]"
       }`}
     >
-      <div className="h-[50px] w-full flex justify-center items-center text-center text-[16px]">
+      <div className={`h-[50px] w-full flex justify-center items-center text-center text-[16px] ${ isToday ? "text-red-500 font-bold" : ""}`}>
         {dayArr[0] == 1 ? `${dayArr[0]} ${dayArr[1]}` : dayArr[0]}
       </div>
       <div className="">

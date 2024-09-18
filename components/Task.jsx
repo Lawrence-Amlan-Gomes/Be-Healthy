@@ -8,9 +8,9 @@ import { useEffect, useState } from "react";
 export default function Task({ name, time, day, id, color }) {
   const { theme } = useTheme();
   const [isborder, setisborder] = useState(true)
-  const { task, setTask, setClicked } = useTask();
+  const { task, setTask, setClicked, clicked } = useTask();
   useEffect(()=>{
-    if(task.day == day){
+    if(task.day == day && clicked){
       if(task.id == id){
         setisborder(true)
       }else{
@@ -19,7 +19,7 @@ export default function Task({ name, time, day, id, color }) {
     }else{
       setisborder(false)
     }
-  },[day, id, name, task.day, task.id, task.name, task.time, time])
+  },[clicked, day, id, name, task.day, task.id, task.name, task.time, time])
   return (
     <div
       onClick={() =>{
