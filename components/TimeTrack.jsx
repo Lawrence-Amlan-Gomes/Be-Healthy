@@ -21,7 +21,11 @@ export default function TimeTrack() {
       }`}
     >
       <div
-        className={`h-[10%] w-full flex justify-center items-center lg:text-[20px] font-bold`}
+        className={`${
+          theme
+            ? "border-[#cccccc] border-b-[1px]"
+            : "border-[#222222] border-b-[1px]"
+        } h-[10%] w-full flex justify-center items-center lg:text-[20px] font-bold`}
       >
         {mountYear}
       </div>
@@ -29,7 +33,7 @@ export default function TimeTrack() {
         {arrDay.map((idx) => (
           <div
             key={idx}
-            className={`lg:w-[14.1%] sm:w-[25%] w-[50%] h-full flex justify-center items-center overflow-y-auto overflow-x-hidden float-left border-b-[1px] border-[#666666] ${
+            className={`lg:w-[14.1%] sm:w-[25%] w-[50%] h-full flex justify-center items-center overflow-y-auto overflow-x-hidden float-left ${
               theme
                 ? "bg-[#ffffff] text-[#0a0a0a]"
                 : "bg-[#000000] text-[#ebebeb]"

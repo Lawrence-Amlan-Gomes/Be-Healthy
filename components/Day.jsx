@@ -83,8 +83,8 @@ export default function Day({ day, days, setDays, dayTasks, setMountYear }) {
   return (
     <div
       onMouseOver={mouseOver}
-      className={`lg:w-[14.28%] sm:w-[25%] w-[50%] h-[50%] overflow-y-auto overflow-x-hidden float-left border-[1px] border-[#666666] ${
-        theme ? "bg-[#ffffff] text-[#0a0a0a]" : "bg-[#000000] text-[#ebebeb]"
+      className={`lg:w-[14.28%] sm:w-[25%] w-[50%] h-[50%] overflow-y-auto overflow-x-hidden float-left border-[1px] ${
+        theme ? "bg-[#ffffff] text-[#0a0a0a] border-[#cccccc]" : "bg-[#000000] text-[#ebebeb] border-[#222222]"
       }`}
     >
       <div className={`h-[50px] w-full flex justify-center items-center text-center text-[16px] ${ isToday ? "text-red-600 font-bold" : ""}`}>

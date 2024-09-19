@@ -289,7 +289,7 @@ export default function TimeDetails() {
   return (
     <div
       className={`h-full w-[15%] float-left overflow-y-auto ${
-        theme ? "bg-[#b1b1b1] text-[#0a0a0a]" : "bg-[#131313] text-[#ebebeb]"
+        theme ? "bg-[#dddddd] border-[#cccccc] border-r-[1px] text-black" : "bg-[#0a0a0a] border-[#222222] border-r-[1px] text-white"
       }`}
     >
       <div className="w-full p-3">
@@ -299,7 +299,7 @@ export default function TimeDetails() {
             <textarea
               className={`${
                 theme ? "border-black" : "border-white"
-              } p-3 border-[2px] max-h-[100px] box-border w-full rounded-md focus:outline-none focus:outline-[1px] focus:shadow-none bg-transparent placeholder:text-[#666666]`}
+              } p-3 border-[2px] max-h-[150px] box-border w-full rounded-md focus:outline-none focus:outline-[1px] focus:shadow-none bg-transparent placeholder:text-[#666666]`}
               value={task.name}
               name="text"
               type="text"

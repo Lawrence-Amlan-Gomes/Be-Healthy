@@ -31,7 +31,7 @@ const ProfileIcon = () => {
         </Link>
       ) : (
         <Link href="/login">
-          <button className={`text-[18px] py-2 px-5 shadow-lg rounded-full ${theme?"bg-[#b3b3b3] hover:bg-[#acacac] text-black":"bg-[#1f1f1f] hover:bg-[#272727] text-zinc-300"}`}>
+          <button className={`text-[18px] py-2 px-5 shadow-lg rounded-full ${theme?"bg-[#b8b8b8] hover:bg-[#b2b2b2] text-black":"bg-[#1f1f1f] hover:bg-[#272727] text-zinc-300"}`}>
             Login
           </button>
         </Link>
