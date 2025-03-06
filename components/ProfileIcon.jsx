@@ -2,8 +2,11 @@
 import Link from "next/link";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useTheme } from "@/app/hooks/useTheme";
+import { usePathname } from "next/navigation";
+
 
 const ProfileIcon = () => {
+  const pathname = usePathname();
   const { theme } = useTheme();
   const { auth } = useAuth();
   const handleClick = () => {
@@ -30,9 +33,9 @@ const ProfileIcon = () => {
           </div>
         </Link>
       ) : (
-        <Link href="/login">
+        <Link href={pathname == "/login" ? "/register" : "/login"}>
           <button className={`text-[18px] py-2 px-5 shadow-lg rounded-full ${theme?"bg-[#b8b8b8] hover:bg-[#b2b2b2] text-black":"bg-[#1f1f1f] hover:bg-[#272727] text-zinc-300"}`}>
-            Login
+            {pathname == "/login" ? "Register" : "Login"}
           </button>
         </Link>
       )}

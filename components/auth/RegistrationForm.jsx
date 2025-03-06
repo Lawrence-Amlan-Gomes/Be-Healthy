@@ -1,9 +1,10 @@
 "use client";
+import { getAllUsers2, registerUser } from "@/app/actions";
+import { useTheme } from "@/app/hooks/useTheme";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import EachField from "./EachField";
-import { getAllUsers2, registerUser } from "@/app/actions";
-import { useTheme } from "@/app/hooks/useTheme";
+import { motion } from "framer-motion";
 
 const RegistrationForm = () => {
   const { theme } = useTheme();
@@ -114,7 +115,7 @@ const RegistrationForm = () => {
           phone: "Phone",
           photo: "",
           bio: "Bio",
-          days: [],
+          paymentType: "Free",
         });
         if (registered) {
           setIsLoading(false);
@@ -125,34 +126,121 @@ const RegistrationForm = () => {
 
   return (
     <div
-      className={`h-full w-full place-items-center flex justify-center items-center ${
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          submitForm();
+        }
+      }}
+      className={`h-full w-full sm:p-0 p-[5%] overflow-y-auto lg:overflow-hidden lg:flex lg:justify-center lg:items-center ${
         theme ? "bg-[#ffffff] text-[#0a0a0a]" : "bg-[#000000] text-[#ebebeb]"
       }`}
     >
-      <div
-        className={` p-10 rounded-lg w-[400px]  text-center shadow-lg ${
+      <motion.div
+      initial={{opacity: 0}}
+      animate={{opacity: 1}}
+      transition={{ duration: 1, type: "just" }}
+        className={`p-10 overflow-hidden rounded-lg sm:my-[5%] sm:w-[80%] sm:mx-[10%] lg:w-[700px] xl:w-[800px] 2xl:w-[900px] lg:my-0 text-center shadow-lg ${
           theme ? "bg-[#ececec] text-[#0a0a0a]" : "bg-[#0f0f0f] text-[#f0f0f0]"
         }`}
       >
-        <div className="text-[30px] font-bold mb-10 ">Registration</div>
-        {/* Trick the browser with this fake email and password field */}
-        <div className="opacity-0">
+        <div className={"w-full overflow-hidden"}>
+          <div className="text-[20px] sm:text-[25px] md:text-[30px] lg:text-[35px] xl:text-[40px] 2xl:text-[45px] font-bold mb-8 w-full float-left flex justify-center items-center">
+            Registration
+          </div>
+          {/* Trick the browser with this fake email and password field */}
+          <div className="opacity-0">
+            <EachField
+              label="fake"
+              type="email"
+              name="email"
+              isReal={false}
+              placeholder="Enter your email"
+              value={email}
+              setValue={setEmail}
+              iserror={emailError.iserror}
+              error={emailError.error}
+            />
+            <EachField
+              label="fake"
+              type="password"
+              name="password"
+              isReal={false}
+              placeholder="Enter your password"
+              value={password}
+              setValue={setPassword}
+              iserror={passwordError.iserror}
+              error={passwordError.error}
+            />
+          </div>
+        </div>
+
+        <div className="w-full sm:hidden block overflow-hidden">
           <EachField
-            label="fake"
+            label="Name"
+            type="name"
+            name="name"
+            isReal={true}
+            placeholder="Enter your name"
+            value={name}
+            setValue={setName}
+            iserror={nameError.iserror}
+            error={nameError.error}
+          />
+          <EachField
+            label="Password"
+            type="password"
+            name="password"
+            isReal={true}
+            placeholder="Enter your password"
+            value={password}
+            setValue={setPassword}
+            iserror={passwordError.iserror}
+            error={passwordError.error}
+          />
+          <EachField
+            label="Email"
             type="email"
             name="email"
-            isReal={false}
+            isReal={true}
             placeholder="Enter your email"
             value={email}
             setValue={setEmail}
             iserror={emailError.iserror}
             error={emailError.error}
           />
+          <button
+            onClick={submitForm}
+            className={`text-[18px] cursor-pointer rounded-md mt-10 py-2 px-6 shadow-md ${
+              noError
+                ? "bg-green-800 hover:bg-green-700 text-white"
+                : theme
+                ? "bg-[#dbdbdb] text-[#808080]"
+                : "bg-[#1a1a1a] text-[#696969]"
+            }`}
+          >
+            {isLoading ? `Registering...` : `Register`}
+          </button>
+        </div>
+
+        <div
+          className={`float-left w-[50%] sm:block hidden overflow-hidden pr-5`}
+        >
           <EachField
-            label="fake"
+            label="Name"
+            type="name"
+            name="name"
+            isReal={true}
+            placeholder="Enter your name"
+            value={name}
+            setValue={setName}
+            iserror={nameError.iserror}
+            error={nameError.error}
+          />
+          <EachField
+            label="Password"
             type="password"
             name="password"
-            isReal={false}
+            isReal={true}
             placeholder="Enter your password"
             value={password}
             setValue={setPassword}
@@ -160,58 +248,44 @@ const RegistrationForm = () => {
             error={passwordError.error}
           />
         </div>
-        <EachField
-          label="Name"
-          type="name"
-          name="name"
-          isReal={true}
-          placeholder="Enter your name"
-          value={name}
-          setValue={setName}
-          iserror={nameError.iserror}
-          error={nameError.error}
-        />
-        <EachField
-          label="Email"
-          type="email"
-          name="email"
-          isReal={true}
-          placeholder="Enter your email"
-          value={email}
-          setValue={setEmail}
-          iserror={emailError.iserror}
-          error={emailError.error}
-        />
-        <EachField
-          label="Password"
-          type="password"
-          name="password"
-          isReal={true}
-          placeholder="Enter your password"
-          value={password}
-          setValue={setPassword}
-          iserror={passwordError.iserror}
-          error={passwordError.error}
-        />
-        <button
-          onClick={submitForm}
-          className={`text-[18px] cursor-pointer rounded-full mt-10 py-2 px-6 shadow-md ${
-            noError
-              ? "bg-green-800 hover:bg-green-700 text-white"
-              : theme
-              ? "bg-[#dbdbdb] text-[#808080]"
-              : "bg-[#1a1a1a] text-[#696969]"
-          }`}
+
+        <div
+          className={`float-left w-[50%] sm:block hidden overflow-hidden pl-5`}
         >
-          {isLoading ? `Registering...` : `Register`}
-        </button>
-        <p className="mt-10">
-          Already Have An Account?{" "}
-          <Link href="/login" className="text-blue-600 hover:text-blue-500">
-            Login
-          </Link>
-        </p>
-      </div>
+          <EachField
+            label="Email"
+            type="email"
+            name="email"
+            isReal={true}
+            placeholder="Enter your email"
+            value={email}
+            setValue={setEmail}
+            iserror={emailError.iserror}
+            error={emailError.error}
+          />
+          <button
+            onClick={submitForm}
+            className={`text-[18px] cursor-pointer rounded-md mt-10 py-2 px-6 shadow-md ${
+              noError
+                ? "bg-green-800 hover:bg-green-700 text-white"
+                : theme
+                ? "bg-[#dbdbdb] text-[#808080]"
+                : "bg-[#1a1a1a] text-[#696969]"
+            }`}
+          >
+            {isLoading ? `Registering...` : `Register`}
+          </button>
+        </div>
+
+        <div className={"float-left w-full overflow-hidden"}>
+          <p className="mt-10 text-[16px] sm:text-[18px] md:text-[20px] lg:text-[22px] xl:text-[24px] 2xl:text-[26px]">
+            Already Have An Account?{" "}
+            <Link href="/login" className="text-blue-600 hover:text-blue-500">
+              Login
+            </Link>
+          </p>
+        </div>
+      </motion.div>
     </div>
   );
 };

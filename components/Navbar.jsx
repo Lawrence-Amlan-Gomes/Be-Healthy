@@ -11,15 +11,15 @@ const Navbar = () => {
   return (
     <div
     onMouseOver={()=>setClicked(false)}
-      className={`h-[10%] ${theme ? "bg-[#dddddd] border-[#cccccc] border-b-[1px]" : "bg-[#0a0a0a] border-[#222222] border-b-[1px]"}`}
+    className={`h-[10%] overflow-hidden ${theme ? "bg-[#dddddd] border-[#cccccc] border-b-[1px]" : "bg-[#0a0a0a] border-[#222222] border-b-[1px]"}`}
     >
-      <div className="w-[20%] h-full float-left flex justify-center items-center">
+      <div className="w-[30%] ml-[5%] h-full float-left flex justify-start items-center">
         <Link href="/">
-          <div className={`text-[30px] font-bold text-center ${theme ? "text-[#222222]" : "text-[#dadada]"}`}>Time Track</div>
+          <div className={`text-[15px] sm:text-[18px] md:text-[22px] lg:text-[25px] xl:text-[30px] 2xl:text-[35px] font-bold text-left ${theme ? "text-[#222222]" : "text-[#dadada]"}`}>Be Healthy</div>
         </Link>
       </div>
-      <div className="h-full float-left flex justify-end items-center w-[75%] mr-[5%]">
-        <ul className="flex gap-10 text-[#cfcfcf]">
+      <div className="h-full float-left flex justify-end items-center w-[60%] mr-[5%]">
+        <ul className="flex gap-5 text-[#cfcfcf]">
           <li>
             <ToogleTheme/>
           </li>

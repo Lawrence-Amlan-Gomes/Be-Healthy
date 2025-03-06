@@ -11,8 +11,9 @@ import TaskProvider from "./providers/TaskProvider";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata = {
-  title: "Time Track",
-  description: "Improve a person self with life track",
+  title: "Be Healthy",
+  description: "Improve a person's life with a healthy lifestyle",
+  image: "/images/logo.png",
 };
 
 export default async function RootLayout({ children }) {
@@ -26,7 +27,7 @@ export default async function RootLayout({ children }) {
                 <AuthProvider>
                   <div className="h-screen overflow-hidden">
                     <Navbar />
-                    <main className="h-[90%]">{children}</main>
+                    <div className="h-[90%] overflow-hidden">{children}</div>
                   </div>
                 </AuthProvider>
               </ThemeProvider>

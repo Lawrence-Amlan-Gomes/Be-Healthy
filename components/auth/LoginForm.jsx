@@ -6,6 +6,7 @@ import { performLogin } from "@/app/actions";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useRouter } from "next/navigation";
 import { useTheme } from "@/app/hooks/useTheme";
+import { motion } from "framer-motion";
 
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
@@ -86,16 +87,26 @@ const LoginForm = () => {
   };
   return (
     <div
-      className={`h-full w-full flex justify-center items-center ${
+      onKeyDown={(event) => {
+        if (event.key === "Enter") {
+          submitForm();
+        }
+      }}
+      className={`h-full w-full sm:p-0 p-[5%] overflow-y-auto lg:overflow-hidden lg:flex lg:justify-center lg:items-center ${
         theme ? "bg-[#ffffff] text-[#0a0a0a]" : "bg-[#000000] text-[#ebebeb]"
       }`}
     >
-      <div
-        className={` p-10 rounded-lg w-[400px]  text-center shadow-lg ${
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1, type: "just" }}
+        className={` p-10 rounded-lg sm:my-[5%] sm:w-[50%] sm:mx-[25%] lg:w-[400px] xl:w-[450px] 2xl:w-[500px] lg:my-0  text-center shadow-lg ${
           theme ? "bg-[#ececec] text-[#0a0a0a]" : "bg-[#0f0f0f] text-[#f0f0f0]"
         }`}
       >
-        <div className="text-[30px] font-bold mb-10 ">Login</div>
+        <div className="text-[20px] sm:text-[25px] md:text-[30px] lg:text-[35px] xl:text-[40px] 2xl:text-[45px] font-bold mb-10 ">
+          Login
+        </div>
         {/* Trick the browser with this fake email and password field */}
         <div className="opacity-0">
           <EachField
@@ -150,17 +161,17 @@ const LoginForm = () => {
         )}
         <button
           onClick={submitForm}
-          className={`text-[18px] text-white cursor-pointer rounded-full mt-10 py-2 px-6  ${"bg-green-800 hover:bg-green-700"}`}
+          className={`text-[18px] text-white cursor-pointer rounded-lg mt-10 py-2 px-6  ${"bg-green-800 hover:bg-green-700"}`}
         >
           {isLoading ? `Loging...` : `Login`}
         </button>
-        <p className="mt-10">
+        <p className="mt-10 text-[16px] sm:text-[18px] md:text-[20px] lg:text-[22px] xl:text-[24px] 2xl:text-[26px]">
           No Account?{" "}
           <Link href="/register" className="text-blue-600 hover:text-blue-500">
             Register
           </Link>
         </p>
-      </div>
+      </motion.div>
     </div>
   );
 };

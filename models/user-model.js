@@ -25,9 +25,9 @@ const schema = new Schema({
     required: false,
     type: String
   },
-  days: {
+  paymentType: {
     required: false,
-    type: Array
+    type: String
   },
   
 });
