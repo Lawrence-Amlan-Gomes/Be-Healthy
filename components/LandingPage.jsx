@@ -65,9 +65,10 @@ export default function LandingPage() {
           className="float-left h-full w-full relative rounded-xl overflow-hidden"
         >
           <Image
-            src={theme ? landingPageLight : landingPageDark} // ✅ Use dynamic path
+            src={theme ? landingPageLight : landingPageDark}
             alt="Landing Page"
             fill
+            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // ✅ Add this
             className="object-contain"
             style={{ objectFit: "contain", height: "100%" }}
           />
