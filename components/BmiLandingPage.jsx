@@ -37,11 +37,11 @@ export default function BmiLandingPage() {
   });
   const [noError, setNoError] = useState(false);
 
-  // useEffect(() => {
-  //   if (!auth) {
-  //     router.push("/login"); // Redirects to login if not authenticated
-  //   }
-  // }, [auth, router]);
+  useEffect(() => {
+    if (!auth) {
+      router.push("/login"); // Redirects to login if not authenticated
+    }
+  }, [auth, router]);
 
   useEffect(() => {
     const statusUpdateBmi = () => {
