@@ -92,8 +92,8 @@ export default function BmiLandingPage() {
   }, [age.value]);
 
   useEffect(() => {
-    let trimmedValue1 = height.value1.trim();
-    let trimmedValue2 = height.value2.trim();
+    let trimmedValue1 = String(height.value1 || "").trim();
+    let trimmedValue2 = String(height.value2 || "").trim();
     if (height.type == "feet") {
       if (height.value1 == "" || height.value2 == "") {
         setHeight((prev) => ({
