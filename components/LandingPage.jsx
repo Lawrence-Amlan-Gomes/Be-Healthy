@@ -4,8 +4,6 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import features from "@/app/features/features";
 import EachFeatureName from "./EachFeatureName";
-import landingPageLight from "/public/landingPagePicLight.png";
-import landingPageDark from "/public/landingPagePicDark.png";
 
 export default function LandingPage() {
   const { theme } = useTheme();
@@ -65,7 +63,7 @@ export default function LandingPage() {
           <div className="relative h-full w-full">
             <Image
               priority
-              src={theme ? landingPageLight : landingPageDark}
+              src={theme ? "/landingPagePicLight.png" : "/landingPagePicDark.png"}
               alt="Landing Page"
               fill
               sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw"
