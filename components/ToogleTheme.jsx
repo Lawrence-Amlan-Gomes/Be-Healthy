@@ -16,12 +16,17 @@ function ToogleTheme() {
         }`}
         onClick={() => setTheme((prev) => !prev)}
       >
-        <Image
-          src={theme ? moon : sun}
-          alt={"logo"}
-          fill
-          className="object-cover"
-        />
+        <div className="h-full w-full relative">
+          {" "}
+          <Image
+            priority
+            src={theme ? moon : sun}
+            alt={theme ? "moon" : "sun"}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw"
+            className="object-cover"
+          />
+        </div>
       </div>
     </div>
   );

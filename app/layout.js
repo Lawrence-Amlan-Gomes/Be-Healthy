@@ -13,7 +13,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata = {
   title: "Be Healthy",
   description: "Improve a person's life with a healthy lifestyle",
-  image: "/images/logo.png",
 };
 
 export default async function RootLayout({ children }) {

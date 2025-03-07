@@ -18,10 +18,12 @@ export default function EachFeatureName({ feature }) {
         <div className="h-full lg:w-[30%] w-full float-left overflow-hidden flex justify-end items-center">
           <div className="h-full w-full relative">
             <Image
+              priority
               src={theme ? feature.imageLight : feature.imageDark}
               alt={feature.title}
-              layout="fill"
-              objectFit="contain"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw"
+              className="object-contain"
             />
           </div>
         </div>

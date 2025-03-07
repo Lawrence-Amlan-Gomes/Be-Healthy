@@ -4,10 +4,8 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import features from "@/app/features/features";
 import EachFeatureName from "./EachFeatureName";
-
-// ✅ Correct way to use images from `public/` folder (no need for import)
-const landingPageLight = "/landingPagePicLight.png";
-const landingPageDark = "/landingPagePicDark.png";
+import landingPageLight from "/public/landingPagePicLight.png";
+import landingPageDark from "/public/landingPagePicDark.png";
 
 export default function LandingPage() {
   const { theme } = useTheme();
@@ -64,14 +62,16 @@ export default function LandingPage() {
           transition={{ duration: 1, type: "just" }}
           className="float-left h-full w-full relative rounded-xl overflow-hidden"
         >
-          <Image
-            src={theme ? landingPageLight : landingPageDark}
-            alt="Landing Page"
-            fill
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw" // ✅ Add this
-            className="object-contain"
-            style={{ objectFit: "contain", height: "100%" }}
-          />
+          <div className="relative h-full w-full">
+            <Image
+              priority
+              src={theme ? landingPageLight : landingPageDark}
+              alt="Landing Page"
+              fill
+              sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw"
+              className="object-contain"
+            />
+          </div>
         </motion.div>
       </div>
     </div>
