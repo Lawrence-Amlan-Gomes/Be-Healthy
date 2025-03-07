@@ -76,9 +76,10 @@ export default function BmiLandingPage() {
   }, [bmi]);
 
   useEffect(() => {
+    let trimmedValue = age.value.trim();
     if (age.value === "") {
       setAge((prev) => ({ ...prev, isError: true, error: "Age is required" }));
-    } else if (!/^\d+$/.test(age.value)) {
+    } else if (!/^\d+$/.test(trimmedValue)) {
       setAge((prev) => ({
         ...prev,
         isError: true,
@@ -91,6 +92,8 @@ export default function BmiLandingPage() {
   }, [age.value]);
 
   useEffect(() => {
+    let trimmedValue1 = height.value1.trim();
+    let trimmedValue2 = height.value2.trim();
     if (height.type == "feet") {
       if (height.value1 == "" || height.value2 == "") {
         setHeight((prev) => ({
@@ -99,7 +102,7 @@ export default function BmiLandingPage() {
           error: "Height is required",
         }));
       } else if (height.value1 != "" && height.value2 != "") {
-        if (!/^\d+$/.test(height.value1) || !/^\d+$/.test(height.value2)) {
+        if (!/^\d+$/.test(trimmedValue1) || !/^\d+$/.test(trimmedValue2)) {
           setHeight((prev) => ({
             ...prev,
             isError: true,
@@ -119,7 +122,7 @@ export default function BmiLandingPage() {
           error: "Height is required",
         }));
       } else if (height.value1) {
-        if (!/^\d+$/.test(height.value1)) {
+        if (!/^\d+$/.test(trimmedValue1)) {
           setHeight((prev) => ({
             ...prev,
             isError: true,
@@ -137,13 +140,14 @@ export default function BmiLandingPage() {
   }, [height.value1, height.value2, height.type]);
 
   useEffect(() => {
+    let trimmedValue = weight.value.trim();
     if (weight.value === "") {
       setWeight((prev) => ({
         ...prev,
         isError: true,
         error: "Weight is required",
       }));
-    } else if (!/^\d+$/.test(weight.value)) {
+    } else if (!/^\d+$/.test(trimmedValue)) {
       setWeight((prev) => ({
         ...prev,
         isError: true,
@@ -184,7 +188,7 @@ export default function BmiLandingPage() {
         weightInKg = parseFloat(weight.value);
       }
       // Apply the new BMI formula
-      let bmiValue = (weightInKg) / Math.pow(heightInMeters, 2);
+      let bmiValue = weightInKg / Math.pow(heightInMeters, 2);
       bmiValue += 0.01 * parseFloat(age.value) + genderFactor;
 
       // Set the calculated BMI
@@ -207,11 +211,11 @@ export default function BmiLandingPage() {
         BMI Calculator
       </div>
 
-      <div className={`w-full float-left px-5`}>
-        <div className="w-full float-left">
+      <div className={`w-full px-10 pb-10 flex flex-col gap-10`}>
+        <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
           {/* Age */}
           <div
-            className={`w-[23%] m-[1%] p-5 rounded-lg h-full float-left ${
+            className={`p-5 rounded-lg flex flex-col justify-center items-center ${
               theme
                 ? "bg-[#ececec] text-[#0a0a0a]"
                 : "bg-[#0f0f0f] text-[#f0f0f0]"
@@ -250,7 +254,7 @@ export default function BmiLandingPage() {
           </div>
           {/* Height */}
           <div
-            className={`w-[23%] m-[1%] p-5 rounded-lg h-full float-left ${
+            className={`p-5 rounded-lg flex flex-col justify-center items-center ${
               theme
                 ? "bg-[#ececec] text-[#0a0a0a]"
                 : "bg-[#0f0f0f] text-[#f0f0f0]"
@@ -394,7 +398,7 @@ export default function BmiLandingPage() {
           </div>
           {/* Weight */}
           <div
-            className={`w-[23%] m-[1%] p-5 rounded-lg h-full float-left ${
+            className={`p-5 rounded-lg flex flex-col justify-center items-center ${
               theme
                 ? "bg-[#ececec] text-[#0a0a0a]"
                 : "bg-[#0f0f0f] text-[#f0f0f0]"
@@ -490,7 +494,7 @@ export default function BmiLandingPage() {
           </div>
           {/* Gender */}
           <div
-            className={`w-[23%] m-[1%] p-5 rounded-lg h-full float-left ${
+            className={`p-5 rounded-lg flex flex-col justify-center items-center ${
               theme
                 ? "bg-[#ececec] text-[#0a0a0a]"
                 : "bg-[#0f0f0f] text-[#f0f0f0]"
@@ -554,7 +558,8 @@ export default function BmiLandingPage() {
             )}
           </div>
         </div>
-        <div className="w-full p-5 flex justify-center items-center">
+        {/* Calculate Button */}
+        <div className="w-full flex justify-center items-center">
           {changeAble ? (
             <div
               onClick={() => {
@@ -571,38 +576,58 @@ export default function BmiLandingPage() {
               Calculate Your BMI
             </div>
           ) : (
-            <>
-              <div
-                className={`rounded-lg w-[200px] h-[150px] overflow-hidden flex justify-center items-center p-5 mr-10 ${
-                  theme
-                    ? "bg-[#ececec] text-[#0a0a0a]"
-                    : "bg-[#0f0f0f] text-[#f0f0f0]"
-                }`}
-              >
-                <div className="w-full">
-                  <div className="mb-3 w-full flex justify-center items-center text-center">
-                    Your BMI is {bmi}
-                  </div>
-                  <div className="w-full flex justify-center items-center">
-                    <div
-                      onClick={() => setChangeAble((prev) => !prev)}
-                      className={`bg-blue-600 hover:bg-blue-700 w-[100px] text-white rounded-lg p-3 flex justify-center items-center cursor-pointer`}
-                    >
-                      Recalculate
-                    </div>
+            <div className="w-full h-full grid grid-cols-2 md:grid-cols-5 gap-5">
+            {/* First Box */}
+            <div
+              className={`rounded-lg col-span-2 md:col-span-1 overflow-hidden flex flex-col justify-center items-center p-7 ${
+                theme ? "bg-[#ececec] text-[#0a0a0a]" : "bg-[#0f0f0f] text-[#f0f0f0]"
+              }`}
+            >
+              <div className="w-full">
+                <div className="mb-3 w-full flex justify-center items-center text-center">
+                  Your BMI is {bmi}
+                </div>
+                <div className="w-full flex justify-center items-center">
+                  <div
+                    onClick={() => setChangeAble((prev) => !prev)}
+                    className="bg-blue-600 hover:bg-blue-700 w-[120px] text-white rounded-lg p-3 flex justify-center items-center cursor-pointer"
+                  >
+                    Recalculate
                   </div>
                 </div>
               </div>
-              <div
-                className={`rounded-lg w-[400px] h-[150px] overflow-hidden p-5 flex justify-center items-center text-center ${
-                  theme
-                    ? "bg-[#ececec] text-[#0a0a0a]"
-                    : "bg-[#0f0f0f] text-[#f0f0f0]"
-                }`}
-              >
-                {bmiStatus}
+            </div>
+          
+            {/* Second Box (Auto Heights) */}
+            <div
+              className={`rounded-lg col-span-2 overflow-hidden p-7 flex justify-center items-center text-center ${
+                theme ? "bg-[#ececec] text-[#0a0a0a]" : "bg-[#0f0f0f] text-[#f0f0f0]"
+              }`}
+            >
+              {bmiStatus}
+            </div>
+          
+            {/* Third Box */}
+            <div
+              className={`rounded-lg md:col-span-2 overflow-hidden flex flex-col justify-center items-center p-7 ${
+                theme ? "bg-[#ececec] text-[#0a0a0a]" : "bg-[#0f0f0f] text-[#f0f0f0]"
+              }`}
+            >
+              <div className="w-full">
+                <div className="mb-3 w-full flex justify-center items-center text-center">
+                  More Information and suggestions about your BMI and health
+                </div>
+                <div className="w-full flex justify-center items-center">
+                  <div
+                    className="bg-blue-600 hover:bg-blue-700 w-[120px] text-white rounded-lg p-3 flex justify-center items-center cursor-pointer"
+                  >
+                    Khow More
+                  </div>
+                </div>
               </div>
-            </>
+            </div>
+          </div>
+          
           )}
         </div>
       </div>
