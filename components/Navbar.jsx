@@ -3,14 +3,11 @@ import Image from "next/image";
 import Link from "next/link";
 import ProfileIcon from "./ProfileIcon";
 import { useTheme } from "@/app/hooks/useTheme.js";
-import { useTask } from "@/app/hooks/useTask";
 import ToogleTheme from "./ToogleTheme";
 const Navbar = () => {
   const { theme, setTheme } = useTheme();
-  const { clicked, setClicked } = useTask();
   return (
     <div
-    onMouseOver={()=>setClicked(false)}
     className={`h-[10%] overflow-hidden ${theme ? "bg-[#dddddd] border-[#cccccc] border-b-[1px]" : "bg-[#0a0a0a] border-[#222222] border-b-[1px]"}`}
     >
       <div className="w-[30%] ml-[5%] h-full float-left flex justify-start items-center">

@@ -1,17 +1,22 @@
 "use client";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useTheme } from "@/app/hooks/useTheme";
+import { useBmi } from "@/app/hooks/useBmi";
+import Image from "next/image";
 import { set } from "mongoose";
 import { useRouter } from "next/navigation"; // ✅ Correct import for App Router
 import { useEffect, useState } from "react";
+import Link from "next/link";
 
 export default function BmiLandingPage() {
   const { theme } = useTheme();
+  const { bmi, setBmi } = useBmi();
   const router = useRouter();
   const { auth } = useAuth();
   const [changeAble, setChangeAble] = useState(true);
-  const [bmi, setBmi] = useState(0);
   const [bmiStatus, setBmiStatus] = useState("");
+  const [weightRangeKg, setWeightRangeKg] = useState([0, 0]);
+  const [weightRangeLbs, setWeightRangeLbs] = useState([0, 0]);
   const [height, setHeight] = useState({
     value1: "",
     value2: "",
@@ -36,6 +41,54 @@ export default function BmiLandingPage() {
     error: "Age is required",
   });
   const [noError, setNoError] = useState(false);
+
+  useEffect(() => {
+    const idealWeightRange = () => {
+      if (
+        height.isError ||
+        gender.isError ||
+        age.isError ||
+        !height.value1 ||
+        (height.type === "feet" && !height.value2) ||
+        !gender.value ||
+        !age.value
+      ) {
+        setWeightRangeKg([0, 0]);
+        setWeightRangeLbs([0, 0]);
+        return;
+      }
+
+      let heightCm = 0;
+      if (height.type === "feet") {
+        heightCm =
+          parseFloat(height.value1) * 30.48 + parseFloat(height.value2) * 2.54;
+      } else if (height.type === "cm") {
+        heightCm = parseFloat(height.value1);
+      }
+
+      const userAge = parseInt(age.value);
+      let ibwKg =
+        gender.value === "male"
+          ? 50 + 2.3 * ((heightCm - 152) / 2.54)
+          : 45.5 + 2.3 * ((heightCm - 152) / 2.54);
+
+      if (userAge > 50) {
+        ibwKg -= 0.2 * (userAge - 50); // Adjust for age above 50
+      }
+
+      // Calculate 10% variation range
+      const lowerLimitKg = Math.round(ibwKg * 0.9 * 10) / 10;
+      const upperLimitKg = Math.round(ibwKg * 1.1 * 10) / 10;
+
+      // Convert kg to lbs (1 kg = 2.20462 lbs)
+      const lowerLimitLbs = Math.round(lowerLimitKg * 2.20462 * 10) / 10;
+      const upperLimitLbs = Math.round(upperLimitKg * 2.20462 * 10) / 10;
+
+      setWeightRangeKg([lowerLimitKg, upperLimitKg]);
+      setWeightRangeLbs([lowerLimitLbs, upperLimitLbs]);
+    };
+    idealWeightRange();
+  }, [height, gender, age]);
 
   useEffect(() => {
     if (!auth) {
@@ -206,12 +259,12 @@ export default function BmiLandingPage() {
       }`}
     >
       <div
-        className={`w-full h-[20%] font-bold float-left text-[25px] sm:text-[30px] md:text-[35px] lg:text-[40px] xl:text-[45px] 2xl:text-[50px] flex justify-center items-center`}
+        className={`w-full py-10 font-bold float-left text-[25px] sm:text-[30px] md:text-[35px] lg:text-[40px] xl:text-[45px] 2xl:text-[50px] flex justify-center items-center`}
       >
         BMI Calculator
       </div>
 
-      <div className={`w-full px-10 pb-10 flex flex-col gap-10`}>
+      <div className={`w-full md:px-10 px-5 pb-10 flex flex-col gap-10`}>
         <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
           {/* Age */}
           <div
@@ -576,58 +629,361 @@ export default function BmiLandingPage() {
               Calculate Your BMI
             </div>
           ) : (
-            <div className="w-full h-full grid grid-cols-2 md:grid-cols-5 gap-5">
-            {/* First Box */}
-            <div
-              className={`rounded-lg col-span-2 md:col-span-1 overflow-hidden flex flex-col justify-center items-center p-7 ${
-                theme ? "bg-[#ececec] text-[#0a0a0a]" : "bg-[#0f0f0f] text-[#f0f0f0]"
-              }`}
-            >
-              <div className="w-full">
-                <div className="mb-3 w-full flex justify-center items-center text-center">
-                  Your BMI is {bmi}
-                </div>
-                <div className="w-full flex justify-center items-center">
-                  <div
-                    onClick={() => setChangeAble((prev) => !prev)}
-                    className="bg-blue-600 hover:bg-blue-700 w-[120px] text-white rounded-lg p-3 flex justify-center items-center cursor-pointer"
-                  >
-                    Recalculate
+            <div className="w-full h-full">
+              <div className="w-full h-full grid grid-cols-5 gap-5">
+                {/* First Box */}
+                <div
+                  className={`rounded-lg col-span-5 md:col-span-1 md:col-start-2 overflow-hidden flex flex-col justify-center items-center p-7 ${
+                    theme
+                      ? "bg-[#ececec] text-[#0a0a0a]"
+                      : "bg-[#0f0f0f] text-[#f0f0f0]"
+                  }`}
+                >
+                  <div className="w-full">
+                    <div className="mb-3 w-full flex justify-center items-center text-center">
+                      Your BMI is {bmi}
+                    </div>
+                    <div className="w-full flex justify-center items-center">
+                      <div
+                        onClick={() => {
+                          setChangeAble((prev) => !prev)
+                          setBmi(0);
+                        }}
+                        className="bg-blue-600 hover:bg-blue-700 w-[120px] text-white rounded-lg p-3 flex justify-center items-center cursor-pointer"
+                      >
+                        Recalculate
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
-            </div>
-          
-            {/* Second Box (Auto Heights) */}
-            <div
-              className={`rounded-lg col-span-2 overflow-hidden p-7 flex justify-center items-center text-center ${
-                theme ? "bg-[#ececec] text-[#0a0a0a]" : "bg-[#0f0f0f] text-[#f0f0f0]"
-              }`}
-            >
-              {bmiStatus}
-            </div>
-          
-            {/* Third Box */}
-            <div
-              className={`rounded-lg md:col-span-2 overflow-hidden flex flex-col justify-center items-center p-7 ${
-                theme ? "bg-[#ececec] text-[#0a0a0a]" : "bg-[#0f0f0f] text-[#f0f0f0]"
-              }`}
-            >
-              <div className="w-full">
-                <div className="mb-3 w-full flex justify-center items-center text-center">
-                  More Information and suggestions about your BMI and health
-                </div>
-                <div className="w-full flex justify-center items-center">
-                  <div
-                    className="bg-blue-600 hover:bg-blue-700 w-[120px] text-white rounded-lg p-3 flex justify-center items-center cursor-pointer"
-                  >
-                    Khow More
-                  </div>
+
+                {/* Second Box (Auto Heights) */}
+                <div
+                  className={`rounded-lg col-span-5 md:col-span-2 md:col-start-3 overflow-hidden p-7 flex justify-center items-center text-center ${
+                    theme
+                      ? "bg-[#ececec] text-[#0a0a0a]"
+                      : "bg-[#0f0f0f] text-[#f0f0f0]"
+                  }`}
+                >
+                  {bmiStatus}
                 </div>
               </div>
+              <>
+                {auth ? (
+                  auth.paymentType == "Free" ? (
+                    <div className="w-full">
+                      <div
+                        className={`w-full py-10 font-bold float-left text-[25px] sm:text-[30px] md:text-[35px] lg:text-[40px] xl:text-[45px] 2xl:text-[50px] flex justify-center items-center`}
+                      >
+                        Khow Your Health
+                      </div>
+                      <div className="w-full font-bold text-[14px]  md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-[1px] rounded-t-lg">
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
+                        >
+                          BMI Category
+                        </div>
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-1 border-[#888888] border-x-[1px] rounded-sm`}
+                        >
+                          BMI Range
+                        </div>
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-2 rounded-sm`}
+                        >
+                          Health Implications
+                        </div>
+                      </div>
+                      <div className="w-full bg-yellow-600 text-[14px] text-white md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px]">
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
+                        >
+                          Underweight
+                        </div>
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-1 border-[#888888] border-x-[1px] rounded-sm`}
+                        >
+                          Below 18.5
+                        </div>
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-2 rounded-sm`}
+                        >
+                          Increased risk of nutrient deficiencies, weak
+                          immunity, fatigue.
+                        </div>
+                      </div>
+                      <div className="w-full bg-green-700  text-white text-[14px] md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px]">
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
+                        >
+                          Normal Weight
+                        </div>
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-1 border-[#888888] border-x-[1px] rounded-sm`}
+                        >
+                          18.5 - 24.9
+                        </div>
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-2 rounded-sm`}
+                        >
+                          Lower risk of chronic diseases, healthy lifestyle.
+                        </div>
+                      </div>
+                      <div className="w-full bg-red-700 text-[14px] text-white md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px]">
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
+                        >
+                          Overweight
+                        </div>
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-1 border-[#888888] border-x-[1px] rounded-sm`}
+                        >
+                          25 - 29.9
+                        </div>
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-2 rounded-sm`}
+                        >
+                          Increased risk of heart diseases, diabetes, high blood
+                          pressure.
+                        </div>
+                      </div>
+                      <div className="w-full bg-red-700  text-[14px] text-white md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px] rounded-b-lg">
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
+                        >
+                          Obese
+                        </div>
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-1 border-[#888888] border-x-[1px] rounded-sm`}
+                        >
+                          30 or above
+                        </div>
+                        <div
+                          className={`p-4 flex justify-center items-center text-center col-span-2 rounded-sm`}
+                        >
+                          High risk of chronic diseases, reduced life
+                          expectancy.
+                        </div>
+                      </div>
+                      <div
+                        className={`w-full mt-5 p-5 text-center rounded-lg ${
+                          theme
+                            ? "bg-[#ececec] text-[#0a0a0a]"
+                            : "bg-[#0f0f0f] text-[#f0f0f0]"
+                        }`}
+                      >
+                        According to your given height, age and gender the body
+                        weight range to maintain a healthy body is{" "}
+                        <span className="font-bold">{weightRangeKg[0]} kg</span>{" "}
+                        to{" "}
+                        <span className="font-bold">{weightRangeKg[1]} kg</span>{" "}
+                        or{" "}
+                        <span className="font-bold">
+                          {weightRangeLbs[0]} lbs
+                        </span>{" "}
+                        to{" "}
+                        <span className="font-bold">
+                          {weightRangeLbs[1]} lbs
+                        </span>
+                      </div>
+                    </div>
+                  ) : (
+                    // <div className="w-full h-full grid grid-cols-1 grid-rows-2 md:grid-cols-2 md:gird-row-1 gap-5 mt-10">
+                    //   {/* First Box */}
+
+                    //   {/* <Link href="/payment">
+                    //     <div
+                    //       className={`cursor-pointer border-[1px] border-transparent box-border grid grid-cols-3 rounded-lg col-span-1 overflow-hidden p-7 ${
+                    //         theme
+                    //           ? "bg-[#ececec] text-[#888888] hover:border-[#cccccc]"
+                    //           : "bg-[#0f0f0f] text-[#888888] hover:border-[#333333]"
+                    //       }`}
+                    //     >
+                    //       <div className="col-span-1 p-2">
+                    //         <div className="h-full w-full relative">
+                    //           <Image
+                    //             priority
+                    //             src={"/Lock.png"}
+                    //             alt="Landing Page"
+                    //             fill
+                    //             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw"
+                    //             className="object-contain"
+                    //           />
+                    //         </div>
+                    //       </div>
+                    //       <div className="col-span-2 flex flex-col gap-5 text-center justify-start items-center">
+                    //         <div>
+                    //           Unlock Deeper Insights – Know Your BMI, Know Your
+                    //           Health!
+                    //         </div>
+                    //         <div>Standard</div>
+                    //       </div>
+                    //     </div>
+                    //   </Link> */}
+
+                    //   {/* Second Box (Auto Heights) */}
+                    //   {/* <Link href="/payment">
+                    //     <div
+                    //       className={`cursor-pointer border-[1px] border-transparent box-border grid grid-cols-3 rounded-lg col-span-1 overflow-hidden p-7 ${
+                    //         theme
+                    //           ? "bg-[#ececec] text-[#888888] hover:border-[#cccccc]"
+                    //           : "bg-[#0f0f0f] text-[#888888] hover:border-[#333333]"
+                    //       }`}
+                    //     >
+                    //       <div className="col-span-1 p-2">
+                    //         <div className="h-full w-full relative">
+                    //           <Image
+                    //             priority
+                    //             src={"/Lock.png"}
+                    //             alt="Landing Page"
+                    //             fill
+                    //             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw"
+                    //             className="object-contain"
+                    //           />
+                    //         </div>
+                    //       </div>
+                    //       <div className="col-span-2 flex flex-col gap-5 text-center justify-start items-center">
+                    //         <div>
+                    //           Go Beyond BMI – Personalized Health, Smarter
+                    //           Living!
+                    //         </div>
+                    //         <div>Premium</div>
+                    //       </div>
+                    //     </div>
+                    //   </Link> */}
+                    // </div>
+                    <>
+                      {auth.paymentType == "Standard" ? (
+                        <div className="w-full">
+                          <div
+                            className={`w-full py-10 font-bold float-left text-[25px] sm:text-[30px] md:text-[35px] lg:text-[40px] xl:text-[45px] 2xl:text-[50px] flex justify-center items-center`}
+                          >
+                            Khow Your Health
+                          </div>
+                          <div className="w-full font-bold text-[14px]  md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-[1px] rounded-t-lg">
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
+                            >
+                              BMI Category
+                            </div>
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-1 border-[#888888] border-x-[1px] rounded-sm`}
+                            >
+                              BMI Range
+                            </div>
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-2 rounded-sm`}
+                            >
+                              Health Implications
+                            </div>
+                          </div>
+                          <div className="w-full bg-yellow-600 text-[14px] text-white md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px]">
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
+                            >
+                              Underweight
+                            </div>
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-1 border-[#888888] border-x-[1px] rounded-sm`}
+                            >
+                              Below 18.5
+                            </div>
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-2 rounded-sm`}
+                            >
+                              Increased risk of nutrient deficiencies, weak
+                              immunity, fatigue.
+                            </div>
+                          </div>
+                          <div className="w-full bg-green-700  text-white text-[14px] md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px]">
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
+                            >
+                              Normal Weight
+                            </div>
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-1 border-[#888888] border-x-[1px] rounded-sm`}
+                            >
+                              18.5 - 24.9
+                            </div>
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-2 rounded-sm`}
+                            >
+                              Lower risk of chronic diseases, healthy lifestyle.
+                            </div>
+                          </div>
+                          <div className="w-full bg-red-700 text-[14px] text-white md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px]">
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
+                            >
+                              Overweight
+                            </div>
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-1 border-[#888888] border-x-[1px] rounded-sm`}
+                            >
+                              25 - 29.9
+                            </div>
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-2 rounded-sm`}
+                            >
+                              Increased risk of heart diseases, diabetes, high
+                              blood pressure.
+                            </div>
+                          </div>
+                          <div className="w-full bg-red-700  text-[14px] text-white md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px] rounded-b-lg">
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
+                            >
+                              Obese
+                            </div>
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-1 border-[#888888] border-x-[1px] rounded-sm`}
+                            >
+                              30 or above
+                            </div>
+                            <div
+                              className={`p-4 flex justify-center items-center text-center col-span-2 rounded-sm`}
+                            >
+                              High risk of chronic diseases, reduced life
+                              expectancy.
+                            </div>
+                          </div>
+                          <div
+                            className={`w-full mt-5 p-5 text-center rounded-lg ${
+                              theme
+                                ? "bg-[#ececec] text-[#0a0a0a]"
+                                : "bg-[#0f0f0f] text-[#f0f0f0]"
+                            }`}
+                          >
+                            According to your given height, age and gender the
+                            body weight range to maintain a healthy body is{" "}
+                            <span className="font-bold">
+                              {weightRangeKg[0]} kg
+                            </span>{" "}
+                            to{" "}
+                            <span className="font-bold">
+                              {weightRangeKg[1]} kg
+                            </span>{" "}
+                            or{" "}
+                            <span className="font-bold">
+                              {weightRangeLbs[0]} lbs
+                            </span>{" "}
+                            to{" "}
+                            <span className="font-bold">
+                              {weightRangeLbs[1]} lbs
+                            </span>
+                          </div>
+                        </div>
+                      ) : (
+                        <></>
+                      )}
+                    </>
+                  )
+                ) : (
+                  <></>
+                )}
+              </>
             </div>
-          </div>
-          
           )}
         </div>
       </div>

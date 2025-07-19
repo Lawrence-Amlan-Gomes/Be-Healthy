@@ -5,9 +5,4 @@ export const AuthContext = createContext();
 
 export const ThemeContext = createContext();
 
-export const HoursContext = createContext();
-
-export const DaysContext = createContext();
-
-export const TaskContext = createContext();
-
+export const BmiContext = createContext();
