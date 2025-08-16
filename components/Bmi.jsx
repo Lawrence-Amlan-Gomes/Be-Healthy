@@ -1,18 +1,18 @@
 "use client";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useTheme } from "@/app/hooks/useTheme";
-import { useBmi } from "@/app/hooks/useBmi";
 import Image from "next/image";
 import { set } from "mongoose";
-import { useRouter } from "next/navigation"; // ✅ Correct import for App Router
+import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { updateBmi } from "@/app/actions";
 
 export default function BmiLandingPage() {
   const { theme } = useTheme();
-  const { bmi, setBmi } = useBmi();
+  const [bmi, setBmi] = useState(0);
   const router = useRouter();
-  const { auth } = useAuth();
+  const { auth, setAuth } = useAuth();
   const [changeAble, setChangeAble] = useState(true);
   const [bmiStatus, setBmiStatus] = useState("");
   const [weightRangeKg, setWeightRangeKg] = useState([0, 0]);
@@ -41,6 +41,15 @@ export default function BmiLandingPage() {
     error: "Age is required",
   });
   const [noError, setNoError] = useState(false);
+  const [showPopup, setShowPopup] = useState(false);
+
+  // Initialize bmi state with auth.bmi if it exists
+  useEffect(() => {
+    if (auth && auth.bmi && auth.bmi != 0) {
+      setBmi(auth.bmi);
+      setChangeAble(false);
+    }
+  }, [auth]);
 
   useEffect(() => {
     const idealWeightRange = () => {
@@ -73,14 +82,12 @@ export default function BmiLandingPage() {
           : 45.5 + 2.3 * ((heightCm - 152) / 2.54);
 
       if (userAge > 50) {
-        ibwKg -= 0.2 * (userAge - 50); // Adjust for age above 50
+        ibwKg -= 0.2 * (userAge - 50);
       }
 
-      // Calculate 10% variation range
       const lowerLimitKg = Math.round(ibwKg * 0.9 * 10) / 10;
       const upperLimitKg = Math.round(ibwKg * 1.1 * 10) / 10;
 
-      // Convert kg to lbs (1 kg = 2.20462 lbs)
       const lowerLimitLbs = Math.round(lowerLimitKg * 2.20462 * 10) / 10;
       const upperLimitLbs = Math.round(upperLimitKg * 2.20462 * 10) / 10;
 
@@ -89,12 +96,6 @@ export default function BmiLandingPage() {
     };
     idealWeightRange();
   }, [height, gender, age]);
-
-  useEffect(() => {
-    if (!auth) {
-      router.push("/login"); // Redirects to login if not authenticated
-    }
-  }, [auth, router]);
 
   useEffect(() => {
     const statusUpdateBmi = () => {
@@ -141,7 +142,6 @@ export default function BmiLandingPage() {
     } else {
       setAge((prev) => ({ ...prev, isError: false, error: "" }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [age.value]);
 
   useEffect(() => {
@@ -188,8 +188,6 @@ export default function BmiLandingPage() {
         setHeight((prev) => ({ ...prev, isError: false, error: "" }));
       }
     }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [height.value1, height.value2, height.type]);
 
   useEffect(() => {
@@ -209,7 +207,6 @@ export default function BmiLandingPage() {
     } else {
       setWeight((prev) => ({ ...prev, isError: false, error: "" }));
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [weight.value]);
 
   useEffect(() => {
@@ -224,8 +221,7 @@ export default function BmiLandingPage() {
     if (noError) {
       let heightInMeters = 0;
       let weightInKg = 0;
-      let genderFactor = gender.value == "Male" ? 0.1 : -0.1; // Corrected G: +5 for males, -5 for females
-      // Convert height to meters
+      let genderFactor = gender.value == "Male" ? 0.1 : -0.1;
       if (height.type === "feet") {
         heightInMeters =
           parseFloat(height.value1) * 0.3048 +
@@ -234,19 +230,24 @@ export default function BmiLandingPage() {
         heightInMeters = parseFloat(height.value1) / 100;
       }
 
-      // Convert weight to kilograms
       if (weight.type === "lbs") {
-        weightInKg = parseFloat(weight.value) * 0.453592; // Convert pounds to kg
+        weightInKg = parseFloat(weight.value) * 0.453592;
       } else {
         weightInKg = parseFloat(weight.value);
       }
-      // Apply the new BMI formula
       let bmiValue = weightInKg / Math.pow(heightInMeters, 2);
       bmiValue += 0.01 * parseFloat(age.value) + genderFactor;
 
-      // Set the calculated BMI
       setBmi(bmiValue.toFixed(2));
       setChangeAble(false);
+
+      if (auth) {
+        updateBmi(auth.email, bmiValue.toFixed(2));
+        setAuth({ ...auth, bmi: bmiValue.toFixed(2) });
+      } else {
+        setShowPopup(true);
+        setTimeout(() => setShowPopup(false), 3000);
+      }
     }
   };
 
@@ -263,10 +264,18 @@ export default function BmiLandingPage() {
       >
         BMI Calculator
       </div>
+      {showPopup && (
+        <div className="absolute top-20 right-5 bg-red-600 text-white p-4 rounded-lg shadow-lg text-center z-50 animate-fade-in-out">
+          If you want to save your BMI, please{" "}
+          <Link href="/login" className="underline">
+            Login
+          </Link>
+          .
+        </div>
+      )}
 
       <div className={`w-full md:px-10 px-5 pb-10 flex flex-col gap-10`}>
         <div className="w-full grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
-          {/* Age */}
           <div
             className={`p-5 rounded-lg flex flex-col justify-center items-center ${
               theme
@@ -305,7 +314,6 @@ export default function BmiLandingPage() {
               </div>
             ) : null}
           </div>
-          {/* Height */}
           <div
             className={`p-5 rounded-lg flex flex-col justify-center items-center ${
               theme
@@ -449,7 +457,6 @@ export default function BmiLandingPage() {
               <></>
             )}
           </div>
-          {/* Weight */}
           <div
             className={`p-5 rounded-lg flex flex-col justify-center items-center ${
               theme
@@ -536,7 +543,6 @@ export default function BmiLandingPage() {
                 />
               </div>
             )}
-
             {weight.isError ? (
               <div className="w-full text-red-600 text-center float-left flex justify-center items-center p-2">
                 {weight.error}
@@ -545,7 +551,6 @@ export default function BmiLandingPage() {
               <></>
             )}
           </div>
-          {/* Gender */}
           <div
             className={`p-5 rounded-lg flex flex-col justify-center items-center ${
               theme
@@ -611,8 +616,7 @@ export default function BmiLandingPage() {
             )}
           </div>
         </div>
-        {/* Calculate Button */}
-        <div className="w-full flex justify-center items-center">
+        <div className="w-full flex justify-center items-center relative">
           {changeAble ? (
             <div
               onClick={() => {
@@ -631,7 +635,6 @@ export default function BmiLandingPage() {
           ) : (
             <div className="w-full h-full">
               <div className="w-full h-full grid grid-cols-5 gap-5">
-                {/* First Box */}
                 <div
                   className={`rounded-lg col-span-5 md:col-span-1 md:col-start-2 overflow-hidden flex flex-col justify-center items-center p-7 ${
                     theme
@@ -646,7 +649,7 @@ export default function BmiLandingPage() {
                     <div className="w-full flex justify-center items-center">
                       <div
                         onClick={() => {
-                          setChangeAble((prev) => !prev)
+                          setChangeAble((prev) => !prev);
                           setBmi(0);
                         }}
                         className="bg-blue-600 hover:bg-blue-700 w-[120px] text-white rounded-lg p-3 flex justify-center items-center cursor-pointer"
@@ -656,8 +659,6 @@ export default function BmiLandingPage() {
                     </div>
                   </div>
                 </div>
-
-                {/* Second Box (Auto Heights) */}
                 <div
                   className={`rounded-lg col-span-5 md:col-span-2 md:col-start-3 overflow-hidden p-7 flex justify-center items-center text-center ${
                     theme
@@ -675,9 +676,9 @@ export default function BmiLandingPage() {
                       <div
                         className={`w-full py-10 font-bold float-left text-[25px] sm:text-[30px] md:text-[35px] lg:text-[40px] xl:text-[45px] 2xl:text-[50px] flex justify-center items-center`}
                       >
-                        Khow Your Health
+                        Know Your Health
                       </div>
-                      <div className="w-full font-bold text-[14px]  md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-[1px] rounded-t-lg">
+                      <div className="w-full font-bold text-[14px] md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-[1px] rounded-t-lg">
                         <div
                           className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
                         >
@@ -712,7 +713,7 @@ export default function BmiLandingPage() {
                           immunity, fatigue.
                         </div>
                       </div>
-                      <div className="w-full bg-green-700  text-white text-[14px] md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px]">
+                      <div className="w-full bg-green-700 text-white text-[14px] md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px]">
                         <div
                           className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
                         >
@@ -747,7 +748,7 @@ export default function BmiLandingPage() {
                           pressure.
                         </div>
                       </div>
-                      <div className="w-full bg-red-700  text-[14px] text-white md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px] rounded-b-lg">
+                      <div className="w-full bg-red-700 text-[14px] text-white md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px] rounded-b-lg">
                         <div
                           className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
                         >
@@ -788,79 +789,15 @@ export default function BmiLandingPage() {
                       </div>
                     </div>
                   ) : (
-                    // <div className="w-full h-full grid grid-cols-1 grid-rows-2 md:grid-cols-2 md:gird-row-1 gap-5 mt-10">
-                    //   {/* First Box */}
-
-                    //   {/* <Link href="/payment">
-                    //     <div
-                    //       className={`cursor-pointer border-[1px] border-transparent box-border grid grid-cols-3 rounded-lg col-span-1 overflow-hidden p-7 ${
-                    //         theme
-                    //           ? "bg-[#ececec] text-[#888888] hover:border-[#cccccc]"
-                    //           : "bg-[#0f0f0f] text-[#888888] hover:border-[#333333]"
-                    //       }`}
-                    //     >
-                    //       <div className="col-span-1 p-2">
-                    //         <div className="h-full w-full relative">
-                    //           <Image
-                    //             priority
-                    //             src={"/Lock.png"}
-                    //             alt="Landing Page"
-                    //             fill
-                    //             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw"
-                    //             className="object-contain"
-                    //           />
-                    //         </div>
-                    //       </div>
-                    //       <div className="col-span-2 flex flex-col gap-5 text-center justify-start items-center">
-                    //         <div>
-                    //           Unlock Deeper Insights – Know Your BMI, Know Your
-                    //           Health!
-                    //         </div>
-                    //         <div>Standard</div>
-                    //       </div>
-                    //     </div>
-                    //   </Link> */}
-
-                    //   {/* Second Box (Auto Heights) */}
-                    //   {/* <Link href="/payment">
-                    //     <div
-                    //       className={`cursor-pointer border-[1px] border-transparent box-border grid grid-cols-3 rounded-lg col-span-1 overflow-hidden p-7 ${
-                    //         theme
-                    //           ? "bg-[#ececec] text-[#888888] hover:border-[#cccccc]"
-                    //           : "bg-[#0f0f0f] text-[#888888] hover:border-[#333333]"
-                    //       }`}
-                    //     >
-                    //       <div className="col-span-1 p-2">
-                    //         <div className="h-full w-full relative">
-                    //           <Image
-                    //             priority
-                    //             src={"/Lock.png"}
-                    //             alt="Landing Page"
-                    //             fill
-                    //             sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 30vw"
-                    //             className="object-contain"
-                    //           />
-                    //         </div>
-                    //       </div>
-                    //       <div className="col-span-2 flex flex-col gap-5 text-center justify-start items-center">
-                    //         <div>
-                    //           Go Beyond BMI – Personalized Health, Smarter
-                    //           Living!
-                    //         </div>
-                    //         <div>Premium</div>
-                    //       </div>
-                    //     </div>
-                    //   </Link> */}
-                    // </div>
                     <>
                       {auth.paymentType == "Standard" ? (
                         <div className="w-full">
                           <div
                             className={`w-full py-10 font-bold float-left text-[25px] sm:text-[30px] md:text-[35px] lg:text-[40px] xl:text-[45px] 2xl:text-[50px] flex justify-center items-center`}
                           >
-                            Khow Your Health
+                            Know Your Health
                           </div>
-                          <div className="w-full font-bold text-[14px]  md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-[1px] rounded-t-lg">
+                          <div className="w-full font-bold text-[14px] md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-[1px] rounded-t-lg">
                             <div
                               className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
                             >
@@ -895,7 +832,7 @@ export default function BmiLandingPage() {
                               immunity, fatigue.
                             </div>
                           </div>
-                          <div className="w-full bg-green-700  text-white text-[14px] md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px]">
+                          <div className="w-full bg-green-700 text-white text-[14px] md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px]">
                             <div
                               className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
                             >
@@ -930,7 +867,7 @@ export default function BmiLandingPage() {
                               blood pressure.
                             </div>
                           </div>
-                          <div className="w-full bg-red-700  text-[14px] text-white md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px] rounded-b-lg">
+                          <div className="w-full bg-red-700 text-[14px] text-white md:text-[18px] grid px-2 grid-cols-4 gap-3 border-[#888888] border-x-[1px] border-b-[1px] rounded-b-lg">
                             <div
                               className={`p-4 flex justify-center items-center text-center col-span-1 rounded-sm`}
                             >
@@ -987,6 +924,26 @@ export default function BmiLandingPage() {
           )}
         </div>
       </div>
+
+      <style jsx>{`
+        @keyframes fade-in-out {
+          0% {
+            opacity: 0;
+          }
+          10% {
+            opacity: 1;
+          }
+          90% {
+            opacity: 1;
+          }
+          100% {
+            opacity: 0;
+          }
+        }
+        .animate-fade-in-out {
+          animation: fade-in-out 3s ease-in-out forwards;
+        }
+      `}</style>
     </div>
   );
 }

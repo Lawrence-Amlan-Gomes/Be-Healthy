@@ -116,6 +116,8 @@ const RegistrationForm = () => {
           photo: "",
           bio: "Bio",
           paymentType: "Free",
+          bmi: 0,
+          recipe: [],
         });
         if (registered) {
           setIsLoading(false);

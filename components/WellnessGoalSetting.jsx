@@ -1,9 +1,9 @@
 "use client";
 import { useAuth } from "@/app/hooks/useAuth";
 import { useTheme } from "@/app/hooks/useTheme";
-import { useBmi } from "@/app/hooks/useBmi";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { updateGoals } from "@/app/actions";
 
 // Mock wellness goal data with 15 goals per BMI category, organized by goal type
 const mockGoals = {
@@ -63,8 +63,7 @@ const mockGoals = {
       },
       {
         title: "3: Include Light Cardio",
-        description:
-          "Add light cardio to improve stamina without burning excessive calories.",
+        description: "Add light cardio to improve stamina without burning excessive calories.",
         steps: [
           "Walk or cycle for 20-30 minutes, 3 times per week.",
           "Keep intensity low to moderate (heart rate ~50-70% of max).",
@@ -464,8 +463,7 @@ const mockGoals = {
     Hydration: [
       {
         title: "1: Increase Water Intake",
-        description:
-          "Stay hydrated to support metabolism and appetite control.",
+        description: "Stay hydrated to support metabolism and appetite control.",
         steps: [
           "Drink 2-2.5 liters of water daily.",
           "Carry a reusable water bottle for easy access.",
@@ -499,8 +497,7 @@ const mockGoals = {
     Nutrition: [
       {
         title: "1: Focus on Low-Calorie Foods",
-        description:
-          "Prioritize low-calorie, nutrient-dense foods for weight loss.",
+        description: "Prioritize low-calorie, nutrient-dense foods for weight loss.",
         steps: [
           "Fill half your plate with non-starchy vegetables.",
           "Choose lean proteins like chicken or tofu for meals.",
@@ -652,7 +649,7 @@ const mockGoals = {
         steps: [
           "Eat 3-4 servings of fruits/veggies like cucumber or melon daily.",
           "Incorporate low-calorie soups or smoothies weekly.",
-          "Pair with adequate water intake for best results.",
+          "Combine with adequate water intake for best results.",
         ],
         benefits: "Increases satiety and supports weight loss.",
       },
@@ -662,13 +659,16 @@ const mockGoals = {
 
 export default function WellnessGoalSetting() {
   const { theme } = useTheme();
-  const { bmi } = useBmi();
   const [bmiError, setBmiError] = useState(true);
   const router = useRouter();
-  const { auth } = useAuth();
+  const { auth, setAuth } = useAuth();
   const [bmiCategory, setBmiCategory] = useState("");
   const [goals, setGoals] = useState({});
   const [showGoals, setShowGoals] = useState(false);
+  const [goalArray, setGoalArray] = useState([]);
+  const [isSelecting, setIsSelecting] = useState(true);
+  const [updateStatus, setUpdateStatus] = useState("");
+  const [buttonState, setButtonState] = useState("default"); // default, updating, success
 
   // Redirect if not authenticated
   useEffect(() => {
@@ -679,22 +679,24 @@ export default function WellnessGoalSetting() {
 
   // Validate BMI input
   useEffect(() => {
-    if (bmi == 0) {
-      setBmiError(true);
-    } else {
-      setBmiError(false);
+    if (auth) {
+      if (auth.bmi == 0) {
+        setBmiError(true);
+      } else {
+        setBmiError(false);
+      }
     }
-  }, [bmi]);
+  }, [auth]);
 
-  // Determine BMI category and load goals
+  // Initialize goals and goalArray
   useEffect(() => {
-    if (!bmiError) {
+    if (auth && !bmiError) {
       let category = "";
-      if (bmi < 18.5) {
+      if (auth.bmi < 18.5) {
         category = "underweight";
-      } else if (bmi >= 18.5 && bmi < 25) {
+      } else if (auth.bmi >= 18.5 && auth.bmi < 25) {
         category = "normal";
-      } else if (bmi >= 25 && bmi < 30) {
+      } else if (auth.bmi >= 25 && auth.bmi < 30) {
         category = "overweight";
       } else {
         category = "obese";
@@ -702,8 +704,66 @@ export default function WellnessGoalSetting() {
       setBmiCategory(category.charAt(0).toUpperCase() + category.slice(1));
       setGoals(mockGoals[category] || {});
       setShowGoals(true);
+      setGoalArray(auth.goals && auth.goals.length > 0 ? auth.goals : []);
+      setIsSelecting(auth.goals.length === 0);
     }
-  }, [bmi, bmiError]);
+  }, [auth, bmiError]);
+
+  // Handle goal selection
+  const handleSelectGoal = (goalType, goal) => {
+    setGoalArray((prev) => {
+      if (prev.some((item) => item.goalType === goalType && item.title === goal.title)) {
+        return prev; // Goal already selected, no change
+      }
+      return [
+        ...prev,
+        {
+          goalType,
+          title: goal.title,
+          description: goal.description,
+          steps: goal.steps,
+          benefits: goal.benefits,
+        },
+      ];
+    });
+  };
+
+  // Handle goal removal
+  const handleRemoveGoal = (goalType, title) => {
+    setGoalArray((prev) => prev.filter((item) => !(item.goalType === goalType && item.title === title)));
+  };
+
+  // Handle update goals
+  const handleUpdateGoals = async () => {
+    if (goalArray.length > 0) {
+      setButtonState("updating");
+      try {
+        setAuth({ ...auth, goals: goalArray });
+        await updateGoals(auth.email, goalArray);
+        setButtonState("success");
+        setUpdateStatus("Goals updated successfully!");
+        setIsSelecting(false);
+        setTimeout(() => {
+          setButtonState("default");
+        }, 2000);
+      } catch (error) {
+        console.error("Failed to update goals:", error);
+        setUpdateStatus("Failed to update goals. Please try again.");
+        setButtonState("default");
+      }
+    } else {
+      setUpdateStatus("Please select at least one goal.");
+      setButtonState("default");
+    }
+  };
+
+  // Define goal type order for sorting
+  const goalTypeOrder = ["Nutrition", "Exercise", "Sleep", "MentalHealth", "Hydration"];
+
+  // Sort goalArray by goalType
+  const sortedGoalArray = [...goalArray].sort((a, b) => {
+    return goalTypeOrder.indexOf(a.goalType) - goalTypeOrder.indexOf(b.goalType);
+  });
 
   return (
     <div
@@ -737,7 +797,7 @@ export default function WellnessGoalSetting() {
         </div>
 
         {/* Goal Results */}
-        {showGoals && (
+        {!bmiError && (
           <div className="w-full flex flex-col gap-5">
             <div
               className={`w-full p-5 text-center rounded-lg ${
@@ -746,18 +806,14 @@ export default function WellnessGoalSetting() {
                   : "bg-[#0f0f0f] text-[#f0f0f0]"
               }`}
             >
-              Based on your BMI of <span className="font-bold">{bmi}</span> (
+              Based on your BMI of <span className="font-bold">{auth.bmi}</span> (
               {bmiCategory}), here are tailored wellness goals to support your
               health journey.
             </div>
-            {[
-              "Nutrition",
-              "Exercise",
-              "Sleep",
-              "MentalHealth",
-              "Hydration",
-            ].map((goalType) => (
-              <div key={goalType} className="w-full flex flex-col gap-5">
+
+            {/* Show selected goals or selection UI */}
+            {goalArray.length > 0 && !isSelecting ? (
+              <div className="w-full flex flex-col gap-5">
                 <div
                   className={`w-full p-5 text-center rounded-lg font-bold text-[20px] ${
                     theme
@@ -765,10 +821,10 @@ export default function WellnessGoalSetting() {
                       : "bg-[#1a1a1a] text-[#f0f0f0]"
                   }`}
                 >
-                  {goalType.replace(/([A-Z])/g, " $1").trim()}
+                  Your Selected Goals
                 </div>
                 <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5">
-                  {goals[goalType]?.map((goal, index) => (
+                  {sortedGoalArray.map((goal, index) => (
                     <div
                       key={index}
                       className={`p-5 rounded-lg flex flex-col justify-center items-center ${
@@ -778,7 +834,7 @@ export default function WellnessGoalSetting() {
                       }`}
                     >
                       <div className="w-full lg:text-[18px] font-bold flex justify-center items-center p-3">
-                        {goal.title}
+                        {goal.goalType}: {goal.title}
                       </div>
                       <div className="w-full text-[16px] flex justify-center items-center p-2">
                         {goal.description}
@@ -792,15 +848,137 @@ export default function WellnessGoalSetting() {
                         </ul>
                       </div>
                       <div className="w-full text-[16px] flex justify-center items-center p-2">
-                        <span className="font-bold mr-2">Benefits: </span>
-                        {"  "}
-                        {goal.benefits}
+                        <span className="font-bold">Benefits:</span>
+                        <span className="ml-1">{goal.benefits}</span>
+                      </div>
+                      <div
+                        onClick={() => handleRemoveGoal(goal.goalType, goal.title)}
+                        className="mt-3 bg-red-600 hover:bg-red-700 text-white rounded-lg p-2 cursor-pointer"
+                      >
+                        Remove
                       </div>
                     </div>
                   ))}
                 </div>
+                <div className="w-full flex justify-center items-center gap-5">
+                  <div
+                    onClick={() => {
+                      setIsSelecting(true);
+                      setGoalArray([]);
+                      setUpdateStatus("");
+                      setButtonState("default");
+                    }}
+                    className="bg-blue-600 hover:bg-blue-700 w-[200px] text-center text-white rounded-lg p-3 flex justify-center items-center cursor-pointer"
+                  >
+                    Reselect Goals
+                  </div>
+                  <div
+                    onClick={handleUpdateGoals}
+                    className={`w-[200px] text-center rounded-lg p-3 flex justify-center items-center ${
+                      goalArray.length === 0 || buttonState === "updating"
+                        ? theme
+                          ? "bg-[#dddddd] text-[#888888] cursor-not-allowed"
+                          : "bg-[#222222] text-[#888888] cursor-not-allowed"
+                        : "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+                    }`}
+                    disabled={goalArray.length === 0 || buttonState === "updating"}
+                  >
+                    {buttonState === "updating"
+                      ? "Updating..."
+                      : buttonState === "success"
+                      ? "Success!"
+                      : "Update Goals"}
+                  </div>
+                </div>
               </div>
-            ))}
+            ) : (
+              <>
+                {[
+                  "Nutrition",
+                  "Exercise",
+                  "Sleep",
+                  "MentalHealth",
+                  "Hydration",
+                ].map((goalType) => (
+                  <div key={goalType} className="w-full flex flex-col gap-5">
+                    <div
+                      className={`w-full p-5 text-center rounded-lg font-bold text-[20px] ${
+                        theme
+                          ? "bg-[#d4d4d4] text-[#0a0a0a]"
+                          : "bg-[#1a1a1a] text-[#f0f0f0]"
+                      }`}
+                    >
+                      {goalType.replace(/([A-Z])/g, " $1").trim()}
+                    </div>
+                    <div className="w-full grid grid-cols-1 md:grid-cols-3 gap-5">
+                      {goals[goalType]?.map((goal, index) => (
+                        <div
+                          key={index}
+                          className={`p-5 rounded-lg flex flex-col justify-center items-center ${
+                            theme
+                              ? "bg-[#ececec] text-[#0a0a0a]"
+                              : "bg-[#0f0f0f] text-[#f0f0f0]"
+                          }`}
+                        >
+                          <div className="w-full lg:text-[18px] font-bold flex justify-center items-center p-3">
+                            {goal.title}
+                          </div>
+                          <div className="w-full text-[16px] flex justify-center items-center p-2">
+                            {goal.description}
+                          </div>
+                          <div className="w-full text-[16px] flex flex-col justify-center items-start p-2">
+                            <span className="font-bold">Steps:</span>
+                            <ul className="list-disc pl-5">
+                              {goal.steps.map((step, i) => (
+                                <li key={i}>{step}</li>
+                              ))}
+                            </ul>
+                          </div>
+                          <div className="w-full text-[16px] flex justify-center items-center p-2">
+                            <span className="font-bold">Benefits:</span>
+                            <span className="ml-1">{goal.benefits}</span>
+                          </div>
+                          <div
+                            onClick={() => handleSelectGoal(goalType, goal)}
+                            className={`mt-3 bg-green-600 hover:bg-green-700 text-white rounded-lg p-2 cursor-pointer ${
+                              goalArray.some(
+                                (item) => item.goalType === goalType && item.title === goal.title
+                              )
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                            }`}
+                            disabled={goalArray.some(
+                              (item) => item.goalType === goalType && item.title === goal.title
+                            )}
+                          >
+                            Select
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+                <div className="w-full flex justify-center items-center">
+                  <div
+                    onClick={handleUpdateGoals}
+                    className={`w-[200px] text-center rounded-lg p-3 flex justify-center items-center ${
+                      goalArray.length === 0 || buttonState === "updating"
+                        ? theme
+                          ? "bg-[#dddddd] text-[#888888] cursor-not-allowed"
+                          : "bg-[#222222] text-[#888888] cursor-not-allowed"
+                        : "bg-green-600 text-white hover:bg-green-700 cursor-pointer"
+                    }`}
+                    disabled={goalArray.length === 0 || buttonState === "updating"}
+                  >
+                    {buttonState === "updating"
+                      ? "Updating..."
+                      : buttonState === "success"
+                      ? "Success!"
+                      : "Update Goals"}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
         )}
       </div>

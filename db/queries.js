@@ -54,6 +54,49 @@ async function changePhoto(email, photo) {
 }
 
 
+async function changeBmi(email, bmi) {
+  await userModel.updateOne(
+      { email: email },
+      { $set: { bmi: bmi } }
+    )
+}
+
+async function changeRecipe(email, recipe) {
+  await userModel.updateOne(
+      { email: email },
+      { $set: { recipe: recipe } }
+    )
+}
+
+async function changeGoals(email, goals) {
+  await userModel.updateOne(
+      { email: email },
+      { $set: { goals: goals } }
+    )
+}
+
+async function changeNutrition(email, nutrition) {
+  await userModel.updateOne(
+      { email: email },
+      { $set: { nutrition: nutrition } }
+    )
+}
+
+async function changeMeditation(email, meditation) {
+  await userModel.updateOne(
+      { email: email },
+      { $set: { meditation: meditation } }
+    )
+}
+
+async function changeWorkout(email, workout) {
+  await userModel.updateOne(
+      { email: email },
+      { $set: { workout: workout } }
+    )
+}
+
+
 export {
   createUser,
   findUserByCredentials,
@@ -61,5 +104,11 @@ export {
   updateUser,
   changePassword,
   changePhoto,
-  upDateDays
+  upDateDays,
+  changeBmi,
+  changeRecipe,
+  changeGoals,
+  changeNutrition,
+  changeMeditation,
+  changeWorkout
 };

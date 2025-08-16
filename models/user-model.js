@@ -29,6 +29,30 @@ const schema = new Schema({
     required: false,
     type: String
   },
+  bmi: {
+    required: false,
+    type: Number
+  },
+  recipe: {
+    required: false,
+    type: Array,
+  },
+  goals: {
+    required: false,
+    type: Array,
+  },
+  nutrition: {
+    required: false,
+    type: Array,
+  },
+  meditation: {
+    required: false,
+    type: Array,
+  },
+  workout: {
+    required: false,
+    type: Array,
+  },
   
 });
 

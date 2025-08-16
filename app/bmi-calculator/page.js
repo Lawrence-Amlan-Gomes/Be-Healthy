@@ -1,4 +1,4 @@
-import BmiLandingPage from "@/components/BmiLandingPage";
+import BmiLandingPage from "@/components/Bmi";
 
 export const metadata = {
   title: "BMI Calculator",
