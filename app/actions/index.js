@@ -1,5 +1,4 @@
 "use server";
-
 import { revalidatePath } from "next/cache";
 import { dbConnect } from "@/services/mongo";
 import {
@@ -15,7 +14,11 @@ import {
   changeGoals,
   changeNutrition,
   changeMeditation,
-  changeWorkout
+  changeWorkout,
+  createPost,
+  updatePost,
+  deletePost,
+  getAllPosts
 } from "@/db/queries";
 import { redirect } from "next/navigation";
 
@@ -23,6 +26,11 @@ async function registerUser(formData) {
   await dbConnect();
   const created = await createUser(formData);
   redirect("/login");
+}
+
+async function callCreatePost(post, initialId) {
+  await dbConnect();
+  const created = await createPost(post, initialId);
 }
 
 async function getAllUsers2() {
@@ -137,6 +145,33 @@ async function updateWorkout(email, workout) {
   }
 }
 
+async function callUpdatePost(postId, title, photo, description, userName) {
+  await dbConnect();
+  try {
+    await updatePost(postId, title, photo, description, userName);
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function callDeletePost(postId) {
+  await dbConnect();
+  try {
+    await deletePost(postId);
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function callGetAllPosts() {
+  await dbConnect();
+  try {
+    const allPost = await getAllPosts();
+    return allPost;
+  } catch (error) {
+    throw error;
+  }
+}
 
 export {
   registerUser,
@@ -152,4 +187,8 @@ export {
   updateNutrition,
   updateMeditation,
   updateWorkout,
+  callCreatePost,
+  callUpdatePost,
+  callDeletePost,
+  callGetAllPosts
 };

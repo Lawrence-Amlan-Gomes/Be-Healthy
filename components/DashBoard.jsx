@@ -13,6 +13,8 @@ export default function DashBoard() {
   useEffect(() => {
     if (!auth) {
       router.push("/login");
+    } else {
+      console.log(auth);
     }
   }, [auth, router]);
 
@@ -56,7 +58,7 @@ export default function DashBoard() {
           theme ? "bg-white shadow-md" : "bg-[#0f0f0f]"
         }`}
       >
-        Wellness Dashboard
+        Dashboard
       </div>
 
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-10 py-10 flex flex-col gap-8">
@@ -119,8 +121,12 @@ export default function DashBoard() {
             }`}
           >
             <h3 className="text-lg font-bold">Workout Plan</h3>
-            <p className="mt-2 text-2xl font-semibold">{auth?.workout?.title || "None"}</p>
-            <p className="text-sm">{auth?.workout?.stream || "Not Set"}</p>
+            <p className="mt-2 text-2xl font-semibold">
+              {auth?.workout?.length > 0 ? auth.workout[0].title : "None"}
+            </p>
+            <p className="text-sm">
+              {auth?.workout?.length > 0 ? auth.workout[0].stream : "Not Set"}
+            </p>
             <button
               onClick={() => router.push("/workOut")}
               className="mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
@@ -194,12 +200,12 @@ export default function DashBoard() {
             }`}
           >
             <h3 className="text-lg font-bold mb-4">Current Workout Plan</h3>
-            {auth?.workout && auth.workout.days && Array.isArray(auth.workout.days) ? (
+            {auth?.workout?.length > 0 && auth.workout[0]?.days && Array.isArray(auth.workout[0].days) ? (
               <div className="flex flex-col gap-4">
-                <p className="font-semibold">{auth.workout.stream}: {auth.workout.title}</p>
-                <p className="text-sm">{auth.workout.description}</p>
+                <p className="font-semibold">{auth.workout[0].stream}: {auth.workout[0].title}</p>
+                <p className="text-sm">{auth.workout[0].description}</p>
                 <p className="text-sm font-bold">{`Today's Workout:`}</p>
-                {auth.workout.days
+                {auth.workout[0].days
                   .filter((day) => day.day === new Date().toLocaleDateString('en-US', { weekday: 'long' }))
                   .map((day, index) => (
                     <div key={index} className="text-sm">
@@ -215,11 +221,11 @@ export default function DashBoard() {
                       )}
                     </div>
                   ))}
-                {auth.workout.days.filter((day) => day.day === new Date().toLocaleDateString('en-US', { weekday: 'long' })).length === 0 && (
+                {auth.workout[0].days.filter((day) => day.day === new Date().toLocaleDateString('en-US', { weekday: 'long' })).length === 0 && (
                   <p className="text-sm">No workout scheduled for today.</p>
                 )}
                 <button
-                  onClick={() => router.push("/workout")}
+                  onClick={() => router.push("/workOut")}
                   className="mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   View Full Plan
@@ -229,7 +235,7 @@ export default function DashBoard() {
               <div>
                 <p className="text-sm">No workout plan selected.</p>
                 <button
-                  onClick={() => router.push("/workout")}
+                  onClick={() => router.push("/workOut")}
                   className="mt-4 px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   Select Workout Plan
@@ -261,7 +267,7 @@ export default function DashBoard() {
             </div>
             <div className="flex-1">
               <p className="font-semibold">Workout Progress:</p>
-              <p className="text-sm">{auth?.workout ? "Plan Active" : "No Plan Selected"}</p>
+              <p className="text-sm">{auth?.workout?.length > 0 ? "Plan Active" : "No Plan Selected"}</p>
             </div>
           </div>
         </div>

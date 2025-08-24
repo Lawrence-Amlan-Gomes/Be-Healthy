@@ -4,8 +4,10 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import features from "@/app/features/features";
 import EachFeatureName from "./EachFeatureName";
+import { useAuth } from "@/app/hooks/useAuth";
 
 export default function LandingPage() {
+  const {auth} = useAuth();
   const { theme } = useTheme();
 
   return (

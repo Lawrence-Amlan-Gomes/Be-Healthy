@@ -1,122 +1,374 @@
-// "use client";
-// import { useAuth } from "@/app/hooks/useAuth";
-// import { useTheme } from "@/app/hooks/useTheme";
-// import { useRouter } from "next/navigation";
-// import { useEffect, useState } from "react";
-// import { callAddCommunityPost, callGetCommunityPosts, callLikeCommunityPost } from "@/db/index";
+"use client";
+import { useAuth } from "@/app/hooks/useAuth";
+import { useTheme } from "@/app/hooks/useTheme";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useRef } from "react";
+import {
+  callCreatePost,
+  callUpdatePost,
+  callDeletePost,
+  callGetAllPosts,
+} from "@/app/actions";
+import EachPostCard from "./EachPostCard";
+import { motion } from "framer-motion";
 
-// export default function CommunitySupportForum() {
-//   const { theme } = useTheme();
-//   const { auth } = useAuth();
-//   const router = useRouter();
-//   const [posts, setPosts] = useState([]);
-//   const [newPost, setNewPost] = useState("");
-//   const [error, setError] = useState("");
+export default function CommunitySupportForum() {
+  const { theme } = useTheme();
+  const { auth, setAllPosts } = useAuth();
+  const router = useRouter();
+  const [posts, setPosts] = useState([]);
+  const [filteredPosts, setFilteredPosts] = useState([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedPost, setSelectedPost] = useState(null);
+  const [error, setError] = useState("");
+  const [isCreating, setIsCreating] = useState(false);
+  const [newPost, setNewPost] = useState({
+    title: "",
+    photo: "",
+    description: "",
+  });
+  const fileInputRef = useRef(null);
 
-//   useEffect(() => {
-//     if (!auth) {
-//       router.push("/login");
-//     } else {
-//       fetchPosts();
-//     }
-//   }, [auth, router]);
+  // Fetch all posts on initial render
+  useEffect(() => {
+    const fetchPosts = async () => {
+      try {
+        const allPosts = await callGetAllPosts();
+        setPosts(allPosts);
+        setFilteredPosts(allPosts);
+        setAllPosts(allPosts);
+      } catch (err) {
+        setError("Failed to load posts");
+        console.error("Error fetching posts:", err);
+      }
+    };
+    fetchPosts();
+  }, [setAllPosts]);
 
-//   const fetchPosts = async () => {
-//     try {
-//       const fetchedPosts = await callGetCommunityPosts();
-//       setPosts(fetchedPosts);
-//     } catch (err) {
-//       setError("Failed to load posts.");
-//     }
-//   };
+  // Filter posts based on search query
+  useEffect(() => {
+    const filtered = posts.filter(
+      (post) =>
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.userName.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+    setFilteredPosts(filtered);
+  }, [searchQuery, posts]);
 
-//   const handlePost = async () => {
-//     if (!newPost.trim()) {
-//       setError("Post content cannot be empty.");
-//       return;
-//     }
-//     try {
-//       await callAddCommunityPost(auth.email, newPost);
-//       setNewPost("");
-//       fetchPosts();
-//     } catch (err) {
-//       setError("Failed to create post.");
-//     }
-//   };
+  // Handle photo upload
+  const handlePhotoUpload = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-//   const handleLike = async (postId) => {
-//     try {
-//       await callLikeCommunityPost(auth.email, postId);
-//       fetchPosts();
-//     } catch (err) {
-//       setError("Failed to like post.");
-//     }
-//   };
+    // Validate file type
+    const validTypes = ["image/jpeg", "image/jpg", "image/png"];
+    if (!validTypes.includes(file.type)) {
+      setError("Only JPG, JPEG, and PNG files are allowed!");
+      return;
+    }
 
-//   return (
-//     <div
-//       className={`w-full h-full overflow-y-auto scrollbar ${
-//         theme
-//           ? "bg-[#ffffff] text-[#0a0a0a] scrollbar-track-[#eeeeee] scrollbar-thumb-[#333333]"
-//           : "bg-[#000000] text-[#ebebeb] scrollbar-track-[#222222] scrollbar-thumb-[#eeeeee]"
-//       }`}
-//     >
-//       <div
-//         className={`w-full py-10 font-bold float-left text-[25px] sm:text-[30px] md:text-[35px] lg:text-[40px] xl:text-[45px] 2xl:text-[50px] flex justify-center items-center`}
-//       >
-//         Community Support Forum
-//       </div>
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => {
+      setNewPost((prev) => ({ ...prev, photo: reader.result }));
+    };
+    reader.onerror = () => {
+      setError("Failed to read image file");
+    };
+  };
 
-//       <div className={`w-full md:px-10 px-5 pb-10 flex flex-col gap-10`}>
-//         <div
-//           className={`w-full p-5 rounded-lg flex flex-col justify-center items-center ${
-//             theme
-//               ? "bg-[#ececec] text-[#0a0a0a]"
-//               : "bg-[#0f0f0f] text-[#f0f0f0]"
-//           }`}
-//         >
-//           <textarea
-//             value={newPost}
-//             onChange={(e) => setNewPost(e.target.value)}
-//             placeholder="Share your health tips or progress..."
-//             className={`p-3 border-[2px] w-full rounded-md focus:outline-none bg-transparent placeholder:text-zinc-400 ${
-//               theme ? "border-[#888888]" : "border-[#666666]"
-//             }`}
-//           />
-//           {error && (
-//             <div className="w-full text-red-600 text-center p-2">{error}</div>
-//           )}
-//           <div
-//             onClick={handlePost}
-//             className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-3 mt-3 cursor-pointer"
-//           >
-//             Post
-//           </div>
-//         </div>
-//         <div className="w-full flex flex-col gap-5">
-//           {posts.map((post) => (
-//             <div
-//               key={post._id}
-//               className={`p-5 rounded-lg flex flex-col justify-center items-start ${
-//                 theme
-//                   ? "bg-[#ececec] text-[#0a0a0a]"
-//                   : "bg-[#0f0f0f] text-[#f0f0f0]"
-//               }`}
-//             >
-//               <div className="w-full font-bold">{post.userName}</div>
-//               <div className="w-full text-[16px] p-2">{post.content}</div>
-//               <div className="w-full flex gap-3">
-//                 <div
-//                   onClick={() => handleLike(post._id)}
-//                   className="bg-green-600 hover:bg-green-700 text-white rounded-lg p-2 cursor-pointer"
-//                 >
-//                   Like ({post.likes})
-//                 </div>
-//               </div>
-//             </div>
-//           ))}
-//         </div>
-//       </div>
-//     </div>
-//   );
-// }
+  // Handle create post
+  const handleCreatePost = async () => {
+    if (!auth) {
+      setError("You must be logged in to create a post");
+      return;
+    }
+    if (!newPost.title || !newPost.description) {
+      setError("Title and description are required");
+      return;
+    }
+    setIsCreating(false);
+    try {
+      const initialId = `${auth.email}${Date.now()}`;
+      await callCreatePost(
+        {
+          InitialId: initialId,
+          title: newPost.title,
+          photo: newPost.photo,
+          description: newPost.description,
+          userEmail: auth.email,
+          userName: auth.name,
+        },
+        initialId
+      );
+      // Re-fetch all posts after creation
+      const allPosts = await callGetAllPosts();
+      setPosts(allPosts);
+      setFilteredPosts(allPosts);
+      setAllPosts(allPosts);
+      setNewPost({ title: "", photo: "", description: "" });
+      setError("");
+    } catch (error) {
+      console.error("Post creation failed:", error);
+      setError("Failed to create post. Please try again.");
+    }
+  };
+
+  // Handle update post
+  const handleUpdatePost = async (postId) => {
+    if (!auth) {
+      setError("You must be logged in to update a post");
+      return;
+    }
+    if (!newPost.title || !newPost.description) {
+      setError("Title and description are required");
+      return;
+    }
+    try {
+      await callUpdatePost(postId, newPost.title, newPost.photo, newPost.description, auth.name);
+      const allPosts = await callGetAllPosts();
+      setPosts(allPosts);
+      setFilteredPosts(allPosts);
+      setAllPosts(allPosts);
+      setSelectedPost((prev) =>
+        prev?.postId === postId
+          ? { ...prev, title: newPost.title, photo: newPost.photo, description: newPost.description }
+          : prev
+      );
+      setNewPost({ title: "", photo: "", description: "" });
+      setIsCreating(false);
+      setError("");
+    } catch (error) {
+      console.error("Post update failed:", error);
+      setError("Failed to update post. Please try again.");
+    }
+  };
+
+  // Handle delete post
+  const handleDeletePost = async (postId) => {
+    if (!auth) {
+      setError("You must be logged in to delete a post");
+      return;
+    }
+    try {
+      await callDeletePost(postId);
+      const allPosts = await callGetAllPosts();
+      setPosts(allPosts);
+      setFilteredPosts(allPosts);
+      setAllPosts(allPosts);
+      setSelectedPost(null);
+      setError("");
+    } catch (error) {
+      console.error("Post deletion failed:", error);
+      setError("Failed to delete post. Please try again.");
+    }
+  };
+
+  // Handle photo input click
+  const handlePhotoClick = () => {
+    fileInputRef.current.click();
+  };
+
+  return (
+    <div
+      className={`h-full w-full overflow-hidden p-5 ${
+        theme ? "bg-[#ffffff] text-[#0a0a0a]" : "bg-[#000000] text-[#ebebeb]"
+      }`}
+    >
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 1 }}
+        className="w-full h-full"
+      >
+        {/* Left Side: Search and Posts (70%) */}
+        <div className="w-[70%] h-full float-left pr-5 overflow-auto">
+          {/* Search Bar */}
+          <input
+            type="text"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            placeholder="Search by title or username"
+            className={`w-full p-2 mb-4 rounded-lg border-2 ${
+              theme
+                ? "bg-[#ffffff] border-blue-700 focus:border-green-700"
+                : "bg-[#1a1a1a] border-blue-700 focus:border-green-700"
+            } focus:outline-none`}
+          />
+          <div className="flex flex-wrap -mx-2">
+            {filteredPosts.map((post) => (
+              <div key={post.postId} className="w-1/3 px-2 mb-4">
+                <EachPostCard post={post} onSelect={() => setSelectedPost(post)} />
+              </div>
+            ))}
+          </div>
+          {filteredPosts.length === 0 && (
+            <p className="text-center">No posts found</p>
+          )}
+        </div>
+
+        {/* Right Side: Create and Details (30%) */}
+        <div
+          className={`w-[30%] h-full float-left p-5 rounded-lg shadow-lg overflow-auto ${
+            theme ? "bg-[#ececec]" : "bg-[#0f0f0f]"
+          }`}
+        >
+          {/* Create Post Button and Form */}
+          {auth && (
+            <>
+              <button
+                onClick={() => setIsCreating((prev) => !prev)}
+                className={`w-full p-3 mb-4 rounded-lg ${
+                  theme
+                    ? "bg-[#c9c9c9] hover:bg-[#bdbdbd] text-blue-700"
+                    : "bg-[#161616] hover:bg-[#202020] text-blue-700"
+                }`}
+              >
+                {isCreating ? "Cancel" : "Create Post"}
+              </button>
+              {isCreating && (
+                <div className="mb-4">
+                  <input
+                    type="text"
+                    value={newPost.title}
+                    onChange={(e) =>
+                      setNewPost({ ...newPost, title: e.target.value })
+                    }
+                    placeholder="Post Title"
+                    className={`w-full p-2 mb-2 rounded-lg border-2 ${
+                      theme
+                        ? "bg-[#ffffff] border-blue-700 focus:border-green-700"
+                        : "bg-[#1a1a1a] border-blue-700 focus:border-green-700"
+                    } focus:outline-none`}
+                  />
+                  <div className="w-full mb-2">
+                    <input
+                      type="file"
+                      ref={fileInputRef}
+                      accept="image/jpeg,image/jpg,image/png"
+                      className="hidden"
+                      onChange={handlePhotoUpload}
+                    />
+                    <button
+                      onClick={handlePhotoClick}
+                      className={`w-full p-2 rounded-lg ${
+                        theme
+                          ? "bg-[#c9c9c9] hover:bg-[#bdbdbd] text-blue-700"
+                          : "bg-[#161616] hover:bg-[#202020] text-blue-700"
+                      }`}
+                    >
+                      {newPost.photo ? "Change Photo" : "Upload Photo"}
+                    </button>
+                    {newPost.photo && (
+                      <>
+                        <img
+                          src={newPost.photo}
+                          alt="Preview"
+                          className="w-full h-32 object-cover rounded-lg mt-2"
+                        />
+                        <button
+                          onClick={() => setNewPost({ ...newPost, photo: "" })}
+                          className={`w-full p-2 mt-2 rounded-lg ${
+                            theme
+                              ? "bg-[#c9c9c9] hover:bg-[#bdbdbd] text-red-700"
+                              : "bg-[#161616] hover:bg-[#202020] text-red-700"
+                          }`}
+                        >
+                          Remove Photo
+                        </button>
+                      </>
+                    )}
+                  </div>
+                  <textarea
+                    value={newPost.description}
+                    onChange={(e) =>
+                      setNewPost({ ...newPost, description: e.target.value })
+                    }
+                    placeholder="Post Description"
+                    className={`w-full p-2 mb-2 rounded-lg border-2 ${
+                      theme
+                        ? "bg-[#ffffff] border-blue-700 focus:border-green-700"
+                        : "bg-[#1a1a1a] border-blue-700 focus:border-green-700"
+                    } focus:outline-none`}
+                  />
+                  <button
+                    onClick={handleCreatePost}
+                    className={`w-full p-3 rounded-lg ${
+                      theme
+                        ? "bg-[#c9c9c9] hover:bg-[#bdbdbd] text-green-700"
+                        : "bg-[#161616] hover:bg-[#202020] text-green-700"
+                    }`}
+                  >
+                    Submit Post
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+
+          {/* Post Details */}
+          {selectedPost && (
+            <div>
+              <h3 className="text-xl font-bold mb-2">{selectedPost.title}</h3>
+              <p className="mb-2">By: {selectedPost.userName}</p>
+              <p className="mb-2">{selectedPost.description}</p>
+              {selectedPost.photo ? (
+                <img
+                  src={selectedPost.photo}
+                  alt="Post"
+                  className="w-full h-32 object-cover rounded-lg mb-2"
+                />
+              ) : (
+                <></>
+              )}
+              {auth && auth.email === selectedPost.userEmail && (
+                <div className="mt-4">
+                  <button
+                    onClick={() => {
+                      setIsCreating(true);
+                      setNewPost({
+                        title: selectedPost.title,
+                        photo: selectedPost.photo,
+                        description: selectedPost.description,
+                      });
+                    }}
+                    className={`w-full p-3 mb-2 rounded-lg ${
+                      theme
+                        ? "bg-[#c9c9c9] hover:bg-[#bdbdbd] text-blue-700"
+                        : "bg-[#161616] hover:bg-[#202020] text-blue-700"
+                    }`}
+                  >
+                    Edit Post
+                  </button>
+                  {isCreating && auth.email === selectedPost.userEmail && (
+                    <button
+                      onClick={() => handleUpdatePost(selectedPost.postId)}
+                      className={`w-full p-3 mb-2 rounded-lg ${
+                        theme
+                          ? "bg-[#c9c9c9] hover:bg-[#bdbdbd] text-green-700"
+                          : "bg-[#161616] hover:bg-[#202020] text-green-700"
+                      }`}
+                    >
+                      Update Post
+                    </button>
+                  )}
+                  <button
+                    onClick={() => handleDeletePost(selectedPost.postId)}
+                    className={`w-full p-3 rounded-lg ${
+                      theme
+                        ? "bg-[#c9c9c9] hover:bg-[#bdbdbd] text-red-700"
+                        : "bg-[#161616] hover:bg-[#202020] text-red-700"
+                    }`}
+                  >
+                    Delete Post
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
+          {error && <p className="text-red-700 mt-4">{error}</p>}
+        </div>
+      </motion.div>
+    </div>
+  );
+}

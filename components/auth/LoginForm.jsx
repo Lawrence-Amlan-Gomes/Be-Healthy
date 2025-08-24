@@ -8,6 +8,29 @@ import { useRouter } from "next/navigation";
 import { useTheme } from "@/app/hooks/useTheme";
 import { motion } from "framer-motion";
 
+async function hashPassword(password, iterations = 10000) {
+    try {
+        const fixedSalt = 'fixedSalt1234567890abcdef';
+        const encodedPassword = new TextEncoder().encode(password);
+        const encodedSalt = new TextEncoder().encode(fixedSalt);
+        
+        const combined = new Uint8Array(encodedPassword.length + encodedSalt.length);
+        combined.set(encodedPassword, 0);
+        combined.set(encodedSalt, encodedPassword.length);
+        
+        let data = combined;
+        for (let i = 0; i < iterations; i++) {
+            data = new Uint8Array(await crypto.subtle.digest('SHA-256', data));
+        }
+        
+        const hash = Array.from(data).map(b => b.toString(16).padStart(2, '0')).join('');
+        return hash;
+    } catch (error) {
+        console.error('Error hashing password:', error);
+        throw error;
+    }
+}
+
 const LoginForm = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { theme } = useTheme();
@@ -54,9 +77,10 @@ const LoginForm = () => {
   const submitForm = async () => {
     setIsLoading(true);
     try {
+      const hashedPassword = await hashPassword(password);
       const found = await performLogin({
         email: email,
-        password: password,
+        password: hashedPassword,
       });
       if (found) {
         setAuth(found);
@@ -83,8 +107,10 @@ const LoginForm = () => {
         isError: true,
         error: "SomeThing Went Wrong",
       });
+      setIsLoading(false);
     }
   };
+
   return (
     <div
       onKeyDown={(event) => {
@@ -107,7 +133,6 @@ const LoginForm = () => {
         <div className="text-[20px] sm:text-[25px] md:text-[30px] lg:text-[35px] xl:text-[40px] 2xl:text-[45px] font-bold mb-10 ">
           Login
         </div>
-        {/* Trick the browser with this fake email and password field */}
         <div className="opacity-0">
           <EachField
             label="fake"
@@ -163,7 +188,7 @@ const LoginForm = () => {
           onClick={submitForm}
           className={`text-[18px] text-white cursor-pointer rounded-lg mt-10 py-2 px-6  ${"bg-green-800 hover:bg-green-700"}`}
         >
-          {isLoading ? `Loging...` : `Login`}
+          {isLoading ? `Logging...` : `Login`}
         </button>
         <p className="mt-10 text-[16px] sm:text-[18px] md:text-[20px] lg:text-[22px] xl:text-[24px] 2xl:text-[26px]">
           No Account?{" "}

@@ -6,14 +6,6 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { updateWorkout } from "@/app/actions";
 
-// Helper function to determine BMI range
-const getBmiRange = (bmi) => {
-  if (bmi < 18.5) return "Underweight";
-  if (bmi >= 18.5 && bmi <= 24.9) return "Normal";
-  if (bmi >= 25 && bmi <= 29.9) return "Overweight";
-  return "Obese";
-};
-
 // Mock workout plan data
 const mockWorkouts = [
   // Underweight (BMI < 18.5)
@@ -1448,6 +1440,15 @@ const mockWorkouts = [
   },
 ];
 
+  // Helper function to determine BMI range
+  const getBmiRange = (bmi) => {
+    if (bmi < 18.5) return "Underweight";
+    if (bmi >= 18.5 && bmi <= 24.9) return "Normal";
+    if (bmi >= 25 && bmi <= 29.9) return "Overweight";
+    return "Obese";
+  };
+
+
 export default function WorkOut() {
   const { theme } = useTheme();
   const { auth, setAuth } = useAuth();
@@ -1455,6 +1456,7 @@ export default function WorkOut() {
   const [bmiError, setBmiError] = useState(true);
   const [bmiCategory, setBmiCategory] = useState("");
   const [workouts, setWorkouts] = useState(mockWorkouts);
+  const [groupedWorkouts, setGroupedWorkouts] = useState({});
   const [showWorkouts, setShowWorkouts] = useState(false);
   const [workout, setWorkout] = useState(null);
   const [isSelecting, setIsSelecting] = useState(true);
@@ -1468,46 +1470,37 @@ export default function WorkOut() {
     }
   }, [auth, router]);
 
-  // Validate BMI input
+
+  // Validate BMI input and initialize states
   useEffect(() => {
     if (auth) {
       if (auth.bmi == 0) {
         setBmiError(true);
       } else {
         setBmiError(false);
+        const category = getBmiRange(auth.bmi);
+        setBmiCategory(category.charAt(0).toUpperCase() + category.slice(1));
+        setShowWorkouts(true);
+        setWorkout(auth.workout?.length > 0 ? auth.workout[0] : null);
+        setIsSelecting(!auth.workout?.length || !auth.workout[0]?.title);
       }
     }
-  }, [auth]);
-
-  // Initialize workout, bmiCategory, and show workouts
-  useEffect(() => {
-    if (auth && !bmiError) {
-      let category = "";
-      if (auth.bmi < 18.5) {
-        category = "underweight";
-      } else if (auth.bmi >= 18.5 && auth.bmi < 25) {
-        category = "normal";
-      } else if (auth.bmi >= 25 && auth.bmi < 30) {
-        category = "overweight";
-      } else {
-        category = "obese";
-      }
-      setBmiCategory(category.charAt(0).toUpperCase() + category.slice(1));
-      setShowWorkouts(true);
-      setWorkout(auth.workout || null);
-      setIsSelecting(!auth.workout || !auth.workout.title);
-    }
-  }, [auth, bmiError]);
-
-  // Filter workouts by BMI
-  const filteredWorkouts = workouts.filter((workout) => workout.bmiRange === getBmiRange(auth.bmi));
+  }, [auth, auth?.workout, bmiError]);
 
   // Group filtered workouts by stream
-  const groupedWorkouts = filteredWorkouts.reduce((acc, workout) => {
-    acc[workout.stream] = acc[workout.stream] || [];
-    acc[workout.stream].push(workout);
-    return acc;
-  }, {});
+  useEffect(() => {
+    if (auth && !bmiError) {
+      const filteredWorkouts = workouts.filter(
+        (workout) => workout.bmiRange === getBmiRange(auth.bmi)
+      );
+      const grouped = filteredWorkouts.reduce((acc, workout) => {
+        acc[workout.stream] = acc[workout.stream] || [];
+        acc[workout.stream].push(workout);
+        return acc;
+      }, {});
+      setGroupedWorkouts(grouped);
+    }
+  }, [auth, bmiError, workouts]);
 
   // Handle workout selection
   const handleSelectWorkout = (stream, workoutPlan) => {
@@ -1524,8 +1517,8 @@ export default function WorkOut() {
     if (workout) {
       setButtonState("updating");
       try {
-        setAuth({ ...auth, workout });
-        await updateWorkout(auth.email, workout);
+        setAuth({ ...auth, workout: [workout] }); // Store as array to match auth.workout structure
+        await updateWorkout(auth.email, [workout]); // Pass array to match backend expectation
         setButtonState("success");
         setUpdateStatus("Workout plan updated successfully!");
         setIsSelecting(false);
@@ -1544,7 +1537,15 @@ export default function WorkOut() {
   };
 
   // Define day order for sorting
-  const dayOrder = ["Saturday", "Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday"];
+  const dayOrder = [
+    "Saturday",
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+  ];
 
   return (
     <div
@@ -1566,10 +1567,14 @@ export default function WorkOut() {
           <div
             onClick={() => router.push("/bmi-calculator")}
             className={`${
-              bmiError ? "bg-red-600 hover:bg-red-700" : "bg-blue-600 hover:bg-blue-700"
+              bmiError
+                ? "bg-red-600 hover:bg-red-700"
+                : "bg-blue-600 hover:bg-blue-700"
             } w-[200px] text-center text-white rounded-lg p-3 flex justify-center items-center cursor-pointer`}
           >
-            {bmiError ? "You have to calculate your BMI first" : "Recalculate your BMI"}
+            {bmiError
+              ? "You have to calculate your BMI first"
+              : "Recalculate your BMI"}
           </div>
         </div>
 
@@ -1596,7 +1601,9 @@ export default function WorkOut() {
                   : "bg-[#0f0f0f] text-[#f0f0f0]"
               }`}
             >
-              Based on your BMI of <span className="font-bold">{auth.bmi}</span> ({bmiCategory}), here are workout plans tailored to your fitness goals.
+              Based on your BMI of <span className="font-bold">{auth.bmi}</span>{" "}
+              ({bmiCategory}), here are workout plans tailored to your fitness
+              goals.
             </div>
 
             {/* Show selected workout or selection UI */}
@@ -1631,16 +1638,22 @@ export default function WorkOut() {
                   <div className="w-full text-[16px] flex flex-col justify-center items-start p-2">
                     <span className="font-bold">Daily Workouts:</span>
                     {(workout.days || [])
-                      .sort((a, b) => dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day))
+                      .sort(
+                        (a, b) =>
+                          dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day)
+                      )
                       .map((day, index) => (
                         <div key={index} className="w-full pl-5 py-2">
                           <span className="font-bold">{day.day}:</span>
                           <ul className="list-disc pl-5">
                             {day.exercises.map((exercise, i) => (
                               <li key={i}>
-                                {exercise.name} - {exercise.sets} sets, {exercise.reps} reps
+                                {exercise.name} - {exercise.sets} sets,{" "}
+                                {exercise.reps} reps
                                 <span className="ml-1">
-                                  (Notes: <span className="ml-1">{exercise.notes}</span>)
+                                  (Notes:{" "}
+                                  <span className="ml-1">{exercise.notes}</span>
+                                  )
                                 </span>
                               </li>
                             ))}
@@ -1688,74 +1701,96 @@ export default function WorkOut() {
               </div>
             ) : (
               <>
-                {["6-day", "5-day"].map((stream) => (
-                  groupedWorkouts[stream]?.length > 0 && (
-                    <div key={stream} className="w-full flex flex-col gap-5">
-                      <div
-                        className={`w-full p-5 text-center rounded-lg font-bold text-[20px] ${
-                          theme
-                            ? "bg-[#d4d4d4] text-[#0a0a0a]"
-                            : "bg-[#1a1a1a] text-[#f0f0f0]"
-                        }`}
-                      >
-                        {stream} Workout Plans
+                {["6-day", "5-day"].map(
+                  (stream) =>
+                    groupedWorkouts[stream]?.length > 0 && (
+                      <div key={stream} className="w-full flex flex-col gap-5">
+                        <div
+                          className={`w-full p-5 text-center rounded-lg font-bold text-[20px] ${
+                            theme
+                              ? "bg-[#d4d4d4] text-[#0a0a0a]"
+                              : "bg-[#1a1a1a] text-[#f0f0f0]"
+                          }`}
+                        >
+                          {stream} Workout Plans
+                        </div>
+                        <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5">
+                          {groupedWorkouts[stream].map((workoutPlan, index) => (
+                            <div
+                              key={index}
+                              className={`p-5 rounded-lg flex flex-col justify-center items-center ${
+                                theme
+                                  ? "bg-[#ececec] text-[#0a0a0a]"
+                                  : "bg-[#0f0f0f] text-[#f0f0f0]"
+                              }`}
+                            >
+                              <div className="w-full lg:text-[18px] font-bold flex justify-center items-center p-3">
+                                {workoutPlan.title}
+                              </div>
+                              <div className="w-full text-[16px] flex justify-center items-center p-2">
+                                {workoutPlan.description}
+                              </div>
+                              <div className="w-full text-[16px] flex flex-col justify-center items-start p-2">
+                                <span className="font-bold">Benefits:</span>
+                                <span className="ml-1">
+                                  {workoutPlan.benefits}
+                                </span>
+                              </div>
+                              <div className="w-full text-[16px] flex flex-col justify-center items-start p-2">
+                                <span className="font-bold">
+                                  Daily Workouts:
+                                </span>
+                                {workoutPlan.days
+                                  .sort(
+                                    (a, b) =>
+                                      dayOrder.indexOf(a.day) -
+                                      dayOrder.indexOf(b.day)
+                                  )
+                                  .map((day, i) => (
+                                    <div key={i} className="w-full pl-5 py-2">
+                                      <span className="font-bold">
+                                        {day.day}:
+                                      </span>
+                                      <ul className="list-disc pl-5">
+                                        {day.exercises.map((exercise, j) => (
+                                          <li key={j}>
+                                            {exercise.name} - {exercise.sets}{" "}
+                                            sets, {exercise.reps} reps
+                                            <span className="ml-1">
+                                              (Notes:{" "}
+                                              <span className="ml-1">
+                                                {exercise.notes}
+                                              </span>
+                                              )
+                                            </span>
+                                          </li>
+                                        ))}
+                                      </ul>
+                                    </div>
+                                  ))}
+                              </div>
+                              <div className="w-full flex justify-center items-center p-2">
+                                <input
+                                  type="radio"
+                                  name="workoutPlan"
+                                  checked={
+                                    !!workout &&
+                                    workout.stream === stream &&
+                                    workout.title === workoutPlan.title
+                                  }
+                                  onChange={() =>
+                                    handleSelectWorkout(stream, workoutPlan)
+                                  }
+                                  className="w-5 h-5"
+                                />
+                                <span className="ml-2">Select</span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                      <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-5">
-                        {groupedWorkouts[stream].map((workoutPlan, index) => (
-                          <div
-                            key={index}
-                            className={`p-5 rounded-lg flex flex-col justify-center items-center ${
-                              theme
-                                ? "bg-[#ececec] text-[#0a0a0a]"
-                                : "bg-[#0f0f0f] text-[#f0f0f0]"
-                            }`}
-                          >
-                            <div className="w-full lg:text-[18px] font-bold flex justify-center items-center p-3">
-                              {workoutPlan.title}
-                            </div>
-                            <div className="w-full text-[16px] flex justify-center items-center p-2">
-                              {workoutPlan.description}
-                            </div>
-                            <div className="w-full text-[16px] flex flex-col justify-center items-start p-2">
-                              <span className="font-bold">Benefits:</span>
-                              <span className="ml-1">{workoutPlan.benefits}</span>
-                            </div>
-                            <div className="w-full text-[16px] flex flex-col justify-center items-start p-2">
-                              <span className="font-bold">Daily Workouts:</span>
-                              {workoutPlan.days
-                                .sort((a, b) => dayOrder.indexOf(a.day) - dayOrder.indexOf(b.day))
-                                .map((day, i) => (
-                                  <div key={i} className="w-full pl-5 py-2">
-                                    <span className="font-bold">{day.day}:</span>
-                                    <ul className="list-disc pl-5">
-                                      {day.exercises.map((exercise, j) => (
-                                        <li key={j}>
-                                          {exercise.name} - {exercise.sets} sets, {exercise.reps} reps
-                                          <span className="ml-1">
-                                            (Notes: <span className="ml-1">{exercise.notes}</span>)
-                                          </span>
-                                        </li>
-                                      ))}
-                                    </ul>
-                                  </div>
-                                ))}
-                            </div>
-                            <div className="w-full flex justify-center items-center p-2">
-                              <input
-                                type="radio"
-                                name="workoutPlan"
-                                checked={!!workout && workout.stream === stream && workout.title === workoutPlan.title}
-                                onChange={() => handleSelectWorkout(stream, workoutPlan)}
-                                className="w-5 h-5"
-                              />
-                              <span className="ml-2">Select</span>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )
-                ))}
+                    )
+                )}
                 <div className="w-full flex justify-center items-center">
                   <div
                     onClick={handleUpdateWorkout}
